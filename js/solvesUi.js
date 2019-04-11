@@ -1,0 +1,268 @@
+/**
+@Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
+* 11/04/2019.)
+**/
+function SolvesUi() {
+  this.solvesPluginName = 'SolvesUi';
+  this.versionId = 1;
+  this.version = '1.0';
+
+  this.init = function(){
+    $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesNotifications);
+    //TODO validações de dependencias
+  };
+  this.destroy = function(){
+    this.clearData();
+  };
+  this.doFxShowingClass = function(elmClass){
+    $("."+elmClass).fadeIn(1000, function() {});
+  }
+  this.doFxShowing = function(elmId){
+    $("#"+elmId).fadeIn(1000, function() {});
+  }
+  this.doFxHidingClass = function(elmClass){ 
+    $("."+elmClass).fadeOut(1000, function() {});
+  }
+  this.doFxHiding = function(elmId){ 
+    $("#"+elmId).fadeOut(1000, function() {});
+  }
+  this.showDialogMessage = function(msg){
+    $.notify({message: msg},{type: 'info'});
+  }
+  this.showDialogError = function(msg){
+    $.notify({message: msg},{offset: 20, spacing: 10, z_index: 1031, delay: 5000, timer: 1000,type: 'danger'});
+  }
+  this.showDialogSuccess = function(msg){
+    $.notify({message: msg},{type: 'success'});
+  }
+  this.showDialogWarning = function(msg){
+    $.notify({message: msg},{type: 'warning'});
+  }
+  this.showDialogMessageWithTitle = function(title, msg){
+    $.notify({title:'<b>'+title+'</b><br/>',message: msg},{type: 'info'});
+  }
+  this.showDialogErrorWithTitle = function(title, msg){
+    $.notify({title:'<b>'+title+'</b><br/>',message: msg},{offset: 20, spacing: 10, z_index: 1031, delay: 5000, timer: 1000,type: 'danger'});
+  }
+  this.showDialogSuccessWithTitle = function(title, msg){
+    $.notify({title:'<b>'+title+'</b><br/>',message: msg},{type: 'success'});
+  }
+  this.showDialogWarningWithTitle = function(title, msg){
+    $.notify({title:'<b>'+title+'</b><br/>',message: msg},{type: 'warning'});
+  }
+  this.loaded = function(force) {
+      if($.Solves.submiting || $.Solves.isTrue(force)){
+        $.Solves.submiting = false;
+        if($.Solves.isLogado()){ this.preencheHtmlUsuarioLogado();}
+      }
+      this.closeLoading(force);
+  }
+  this.loading = function(showDialogProcessando) {
+      if ( $.Solves.submiting) {
+              if(showDialogProcessando){
+                  this.showDialogMessage("Processando, aguarde!");
+              }
+              return true;
+      } else {
+              $.Solves.submiting = true;
+              this.showLoading();
+              return false;
+      }
+  }
+  this.showLoading = function(){
+    //TODO verifica se overlay existe, se não, cria.
+      $('#overlay').fadeIn(0,function(){
+              $('#overlay_loading').show();
+              $('#overlay_loading').fadeIn();
+              $('#overlay_loaded').html('.');
+      });
+  }
+  this.closeLoading = function(force){
+    if($.Solves.isTrue(force) || !$.Solves.isTrue($('#overlay_loaded').html())){
+      $('#overlay').fadeOut('fast');
+      $('#overlay_loading').hide();
+      $('#overlay_loaded').html('true');
+    }
+    document.getElementById("overlay_loading").style.display = "none";
+  }
+
+  this.clearModalSmall = function(){
+      $('#modalSmall_title').html('');
+      $('#modalSmall_body').html('');
+      $('#modalSmall_footer').html('');  
+  }
+  this.showModalSmall = function(title, htmlBody, htmlFooter){
+    //TODO verifica se existe o modal, senão cria.
+      this.clearModalSmall();
+      $('#modalSmall_title').html(title);
+      $('#modalSmall_body').html(htmlBody);
+      $('#modalSmall_footer').html(htmlFooter);
+      $('#modalSmall').modal('show');
+      $('#modalSmall').on('shown.bs.modal ', function(event) {
+          $(this).css('display', 'flex');
+      });
+  }
+  this.closeModalSmall = function(){
+      $('#modalSmall').modal('hide');
+      clearModalSmall();
+  }
+  this.abrePaginaInicial = function(){
+    if(isLogado()){
+       var urlAtual = window.location.href.replace($.Solves.siteUrl+'/','').replace($.Solves.siteUrl,'');
+       if(urlAtual!=null && urlAtual.length>0 && urlAtual!='page' && urlAtual!='/'){
+          abrePagina(urlAtual);
+       }else{
+          abrePagina('home');
+        }
+    }else{
+       abrePagina('index');
+    }
+  }
+  this.verificaLogadoAbreDireto = function(isApp, modulo){
+    if(isLogado()){
+      window.location.href = '/home';
+    }else{
+      doFxHiding('public-loading');
+      doFxShowing('public-wrapper');
+    }
+  }
+  this.abrePagina = function(page){
+    loading(false);
+    if(!isLogado()){
+    //   page = 'login';
+    }
+    if(page.endsWith('#')){
+      page = page.replace('#','');
+    }
+    //refreshUrlBrowser('/'+page, null);
+    $.Solves.url = page;
+    window.location.href = $.Solves.siteUrl+'/'+page;
+  }
+  this.ajustaDadosExibicaoPagina = function(titulo, subtitulo, id_simples){
+    $.Solves.telaAtualId = id_simples;
+    $.Solves.telaAtualTitulo = titulo;
+    $.Solves.telaAtualSubtitulo = subtitulo;
+    if($.Solves.isNotEmpty($.Solves.telaAtualTitulo) && $("#page_title").length>0){
+      $("#page_title").html($.Solves.telaAtualTitulo);
+    }
+    if($.Solves.isNotEmpty($.Solves.telaAtualSubtitulo) && $("#page_subtitle").length>0){
+      $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
+    }
+    if($('#page_content_'+$.Solves.telaAtualId+'_form').length>0){
+      prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+    }
+    if($('#page_breadcrumb').length>0){
+      $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/">Início</a>'+
+          '<span class="breadcrumb-item active">'+titulo+'</span>');
+    }
+  }
+  this.ajustaExibicaoPagina = function(titulo, subtitulo, id_simples){
+    $.Solves.telaAtualId = id_simples;
+    $.Solves.telaAtualTitulo = titulo;
+    $.Solves.telaAtualSubtitulo = subtitulo;
+    $('.page_content').hide();
+    if(isLogado()){ 
+      exibeTitulo();
+      doIndex(id_simples);  
+      $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/home">Início</a>'+
+          '<span class="breadcrumb-item active">'+titulo+'</span>');
+    }else{
+      logoff();
+    }
+  }
+  this.exibeTitulo = function(){
+    $('#page_content_'+$.Solves.telaAtualId).show();
+    $('#sl-page-title').show();
+      $("#page_title").html($.Solves.telaAtualTitulo);
+      if($.Solves.isNotEmpty($.Solves.telaAtualSubtitulo)){
+        $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
+      }
+    prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+  }
+  this.doNovo = function(id_simples){
+    $('.page_content_'+id_simples).hide();
+    $('#page_content_'+id_simples+'_form').show(); 
+      $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/home">Início</a>'+
+          '<a class="breadcrumb-item" href="/'+id_simples+'">'+$.Solves.telaAtualTitulo+'</a>'+
+          '<span class="breadcrumb-item active">Novo</span>');
+    prepareSelect2Ajax('page_content_'+id_simples+'_form');
+  }
+  this.doIndex = function(id_simples){
+    $('.sl-menu-link').removeClass('active');
+    $('.page_content_'+id_simples).hide();
+    $('.sl-menu-link[href*="'+id_simples+'"]').addClass('active');
+    $('.nav-link[href*="'+id_simples+'"]').addClass('active');
+    this.preencheHtmlUsuarioLogado();
+    $('#page_content_'+id_simples+'_index').show();
+  }
+  this.doFormCancelar = function(id_simples){
+    if($.Solves.isNotEmpty(id_simples)){
+      if(id_simples[0]=='/'){
+        id_simples = id_simples.substring(1,id_simples.length);
+      }
+      abrePagina(id_simples);
+    }
+  }
+  this.preencheHtmlUsuarioLogado = function(){
+    $.Solves.getPerfilLogado();
+    if(($.Solves.getPerfilLogado().email_confirmado==undefined || !$.Solves.isTrue($.Solves.getPerfilLogado().email_confirmado))){  
+      if($('.usuario_logado_alerta_email_nao_confirmado').length>0){
+        $('.usuario_logado_alerta_email_nao_confirmado').show();
+      }
+      addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
+    }
+    $('.usuario_logado_nome').html(getPerfilLogado().nome);
+    $('.usuario_logado_email').html(getPerfilLogado().email);
+    $('.usuario_logado_avatar').attr('src', getPerfilLogado().avatar);
+    $('.usuario_logado_avatar').attr('alt', getPerfilLogado().nome);
+    $('.usuario_logado_avatar').attr('title', getPerfilLogado().nome);
+    $('.usuario_logado_data_nascimento').html(getPerfilLogado().data_nascimento_label);
+    $('.usuario_logado_idade').html(getPerfilLogado().idade);
+  }
+  this.addNotificationToTopPanel = function(linkUrl, imgUrl, title, txt, dataHora){
+     $('#notifications_list').prepend('<a href="'+($.Solves.isNotEmpty(linkUrl) ? linkUrl : '#')+'" class="media-list-link read"><div class="media pd-x-20 pd-y-15">'+
+       ($.Solves.isNotEmpty(imgUrl) ? '<img src="'+imgUrl+'" class="wd-40 rounded-circle" alt="'+title+'">' : '')+
+        '<div class="media-body"><p class="tx-13 mg-b-0 tx-gray-700">'+txt+'</p>'+
+        ($.Solves.isNotEmpty(dataHora) ? '<span class="tx-12">'+dataHora+'</span>' : '')+
+        '</div></div></a>');
+  }
+  this.doMasks = function(){
+    $('.field-date').mask('99/99/9999');
+    $('.field-data').mask('99/99/9999').val($.Solves.getDataAtualFormatada());
+    $('.field-hora').mask('99:99');
+    $('.field-fone').mask('(99) 9999-9999?9');
+    $('.field-rg').mask('999.999.999');
+    $('.field-cpf').mask('999.999.999-99');
+    $('.field-cnpj').mask('99.999.999/9999-99');
+    $('.field-cep').mask('99999-999');  
+    $(".field-double").maskMoney({decimal:",",thousands:"",precision:2});
+    $('.field-dolar').maskMoney({decimal:",",thousands:" ",precision:3});
+    $('.field-moeda').maskMoney({symbol:"R$",decimal:",",thousands:"."});
+    $('.field-euro').maskMoney({symbol:"Euro",decimal:",",thousands:" "}); 
+  }
+  this.getAvatarImgHtml = function(avatar, title, tipo){
+    var addClass = ($.Solves.isNotEmpty(tipo) ? 'avatar_img_'+tipo:''); 
+    return getImgHtml(avatar, title, 'avatar_img '+addClass); 
+  }
+  this.getImgHtml = function(src, title, clsses){
+    var addClass = ($.Solves.isNotEmpty(clsses) ? ' '+clsses:'');  
+    return '<img src="'+src+'" alt="'+title+'" class="img-responsive'+addClass+'">';
+  }
+  this.getHtmlListItem = function(link, avatar, altTitle, titulo, avaliacao, summary, aditionalClasses){
+    return '<a href="'+link+'" class="list-group-item list-group-item-action media '+($.Solves.isNotEmpty(aditionalClasses)?aditionalClasses:'')+'">'+
+              this.getAvatarImgHtml(avatar, altTitle)+
+              '<div class="media-body">'+
+                '<div class="msg-top">'+
+                  '<span>'+titulo+'</span>'+
+                  ($.Solves.isNotEmpty(avaliacao)?
+                  '<span class="avaliacao">'+
+                    '<i class="fas fa-star"></i>'+avaliacao+''+
+                  '</span>': '')+
+                '</div>'+
+                '<p class="msg-summary">'+summary+'</p>'+
+              '</div><!-- media-body -->'+
+            '</a><!-- list-group-item -->';
+  }
+}
+$.SolvesUi = new SolvesUi();
+$.SolvesUi.init();
