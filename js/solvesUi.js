@@ -14,6 +14,14 @@ function SolvesUi() {
   this.destroy = function(){
     this.clearData();
   };
+  this.showHideDiv = function(divId, show) {
+    const div = document.querySelector('#' + divId);
+    if (show) {
+      div.style = 'display: visible';
+    } else {
+      div.style = 'display: none';
+    }
+  }
   this.doFxShowingClass = function(elmClass){
     $("."+elmClass).fadeIn(1000, function() {});
   }
@@ -70,7 +78,15 @@ function SolvesUi() {
       }
   }
   this.showLoading = function(){
-    //TODO verifica se overlay existe, se não, cria.
+    if($('#overlay').length==0){
+      $("body").append('<div class="overlay" id="overlay" style="display:none;"></div>');
+    }
+    if($('#overlay_loading').length==0){
+      $("body").append('<div id="overlay_loading" style="display:none;"><div class="sk-cube-grid"><div class="sk-cube sk-cube1"></div><div class="sk-cube sk-cube2"></div><div class="sk-cube sk-cube3"></div><div class="sk-cube sk-cube4"></div><div class="sk-cube sk-cube5"></div><div class="sk-cube sk-cube6"></div><div class="sk-cube sk-cube7"></div><div class="sk-cube sk-cube8"></div><div class="sk-cube sk-cube9"></div></div></div>');
+    }
+    if($('#overlay_loaded').length==0){
+      $("body").append('<div id="overlay_loaded" style="display:none;"></div>');
+    }
       $('#overlay').fadeIn(0,function(){
               $('#overlay_loading').show();
               $('#overlay_loading').fadeIn();
@@ -92,15 +108,30 @@ function SolvesUi() {
       $('#modalSmall_footer').html('');  
   }
   this.showModalSmall = function(title, htmlBody, htmlFooter){
-    //TODO verifica se existe o modal, senão cria.
-      this.clearModalSmall();
-      $('#modalSmall_title').html(title);
-      $('#modalSmall_body').html(htmlBody);
-      $('#modalSmall_footer').html(htmlFooter);
-      $('#modalSmall').modal('show');
-      $('#modalSmall').on('shown.bs.modal ', function(event) {
-          $(this).css('display', 'flex');
-      });
+    if($('#modalSmall').length==0){
+      $("body").append('<div id="modalSmall" class="modal fade" style="display: none;" aria-hidden="true">'+
+          '<div class="modal-dialog modal-sm" role="document">'+
+            '<div class="modal-content bd-0 tx-14">'+
+              '<div class="modal-header pd-x-20">'+
+               ' <h6 class="tx-14 mg-b-0 tx-uppercase tx-inverse tx-bold" id="modalSmall_title"></h6>'+
+               ' <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">'+
+               '   <span aria-hidden="true">×</span>'+
+               ' </button>'+
+              '</div>'+
+              '<div class="modal-body pd-20" id="modalSmall_body"></div>'+
+              '<div class="modal-footer justify-content-center" id="modalSmall_footer"></div>'+
+            '</div>'+
+          '</div><!-- modal-dialog -->'+
+       ' </div>');
+    }
+    this.clearModalSmall();
+    $('#modalSmall_title').html(title);
+    $('#modalSmall_body').html(htmlBody);
+    $('#modalSmall_footer').html(htmlFooter);
+    $('#modalSmall').modal('show');
+    $('#modalSmall').on('shown.bs.modal ', function(event) {
+        $(this).css('display', 'flex');
+    });
   }
   this.closeModalSmall = function(){
       $('#modalSmall').modal('hide');

@@ -37,12 +37,30 @@ function Solves() {
   this.subObjeto = null;
   this.subObjetoQtd = 0;
   this.subObjetos = [];
+  /*FIREBASE*/
+  this.fireBaseConfig = {};
+  this.fireBaseInitialized = false;
+  this.fireBaseApp = null;
 
   this.init = function(p_siteUrl, p_siteTitulo, p_siteShortName, p_icon){
     this.siteUrl = p_siteUrl;
     this.siteTitulo = p_siteTitulo;
     this.siteShortName = p_siteShortName;
     this.icon = p_icon;
+  }
+  this.setFireBaseConfig = function(config){
+        console.log('setFireBaseConfig');
+    if(config!==undefined && $.Solves.isNotEmpty(config.apiKey) && $.Solves.isNotEmpty(config.authDomain) && $.Solves.isNotEmpty(config.projectId) 
+      && $.Solves.isNotEmpty(config.messagingSenderId) && $.Solves.isNotEmpty(config.databaseURL) && $.Solves.isNotEmpty(config.storageBucket)){
+      this.fireBaseConfig = config;
+      if (!firebase || !firebase.apps.length) {
+        console.log('setFireBaseConfig init');
+        // Initialize Firebase      
+        this.fireBaseInitialized = true;
+        this.fireBaseApp = firebase.initializeApp(this.fireBaseConfig);
+        console.log(this.fireBaseApp);
+      }
+    }
   }
   this.addSolvesPlugin = function(key, p){
       if(this.solvesPlugins[key]!==undefined && this.solvesPlugins[key]!=null && this.solvesPlugins[key].solvesPluginName==key){
@@ -71,6 +89,9 @@ function Solves() {
       str = str.replace(/[ÈÉÊË]/g,"E");
       return (str.replace(/[^a-z0-9]/gi,''));
   }    
+  this.isTrue = function(v){
+    return (v!==undefined && v!==null && (v==true || v=='true' || v==1 || v=="1" || v=='on'));
+  }
   this.isNotEmpty = function(val){
     return val!==undefined && val!=null && val!="null" && val!="" && val!="undefined";
   }
@@ -461,13 +482,12 @@ function Solves() {
   }
   this.atualizaPerfilLogado = function(obj){
     $.Solves.getPerfilLogado().data_nascimento = obj.data_nascimento;
-    $.Solves.getPerfilLogado().email_confirmado = $.Solves.isTrue(obj.email_confirmado);
+    $.Solves.getPerfilLogado().email_confirmado = this.isTrue(obj.email_confirmado);
     $.Solves.getPerfilLogado().email = obj.email;
     $.Solves.getPerfilLogado().nome = obj.nome;
     $.Solves.getPerfilLogado().avatar = obj.avatar;
-    $.Solves.getPerfilLogado().idade = getIdade($.Solves.getPerfilLogado().data_nascimento);  
+    $.Solves.getPerfilLogado().idade = getIdade(this.getPerfilLogado().data_nascimento);  
 
-    //TODO atualiza usuario logado. 
     $.Solves.PERFIL_LOGADO = $.Solves.getPerfilLogado();
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
