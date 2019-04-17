@@ -5,10 +5,10 @@
 function Solves() {
   this.versionId = 1;
   this.version = '1.0';
-  this.siteUrl = 'https://compartilhatube.com.br/pwa/';
-  this.siteTitulo = 'CompartilhaTube';
-  this.siteShortName = 'compartilhatube';
-  this.icon =  this.siteUrl+'assets/img/icons/Icon-48.png';
+  this.siteUrl = 'https://...';
+  this.siteTitulo = 'Solves Site Name';
+  this.siteShortName = 'Solves Short Site Name';
+  this.icon =  this.siteUrl+'...';
   this.solvesPlugins = [];
   this.app = false;
   this.url = null;

@@ -6,19 +6,38 @@ function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
   this.versionId = 1;
   this.version = '1.0';
+
+  this.urlPublicVideos = null;
+  this.urlVideos = null;
+  this.urlCanais = null;
   this.youtubeApiKey = null;
   this.youtubeChannelUrl = null;
   this.youtubePlayer = null;
   this.youtubeRestUrlSearchChannel = null;
   this.videoDone = false;
   this.videoPause = false;
-  this.secondsToWatch = null;
+  this.initialSecondsToWatch = 45;
+  this.secondsToWatch = 45;
   this.timeoutContagemWatch = null;
-  this.selectFieldClass = null;
+  /*Operations that must be logged in*/
+  this.loggedInToWatchNextVideo = true;
+  /*Element Identificators*/
+  this.selectFieldClass = 'select_youtube_videos';
+  this.containerWatchPlayerElmId = 'watch_player';
+  this.containerWatchPlayerDescElmId = 'watch_player_desc';
+  this.containerWatchChannelDescElmId = 'watch_channel_desc';
+  this.containerWatchChannelDescNameElmId = 'watch_channel_desc_name';
+  this.containerWatchCounterElmId = 'watch_counter';
+  this.containerWatchCounterNumberElmId = 'watch_counter_number';
+  this.containerWatchCounterSecsElmId = 'watch_counter_secs';
+  this.containerWatchNextElmId = 'watch_next';
+  /* PADRÃO DE NOMES DE PARAMETROS  */
+  this.PARAM_NAME_VIDEOS = 'videos';
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesVideo);
     //TODO validações de dependencias
+    /*Depende de select2 e api youtube*/
   };
   this.destroy = function(){
 
@@ -27,8 +46,12 @@ function SolvesVideo() {
   this.setYoutubeApiKey = function(key){
     this.youtubeApiKey = key;
   };
-  this.setSecondsToWatch = function(secs){
-    this.secondsToWatch = secs;
+  this.setInitialSecondsToWatch = function(secs){
+    this.initialSecondsToWatch = secs;
+    this.secondsToWatch = this.initialSecondsToWatch;
+  };
+  this.restartSecondsToWatch = function(){
+    this.secondsToWatch = this.initialSecondsToWatch;
   };
   this.getYoutubeUrlApiDados = function(){
     if($.Solves.isNotEmpty(this.youtubeApiKey)){
@@ -48,47 +71,76 @@ function SolvesVideo() {
     }
     return null;
   }   
-
-this.showModalPublicWatchVideo = function(videoNome, videoUrl){
- this.youtubePlayer=undefined;
-   showModalSmall(videoNome, '<div id="modal_player_container" class="modal_player_container">CARREGANDO VÃDEO...</div>', '<a href="javascript:closeModalSmall();">Fechar</a>');   
-   onYouTubeIframeAPIReady("modal_player_container", videoUrl);
-}
-this.listPublicWatchVideo = function(elmContainerId){
-  var lista = $.Atual.subObjetos["videos"][0];
-  $('#'+elmContainerId).html('');
-  for(var i in lista){
-    var obj = lista[i];
-    appendHtmlItemListPublicWatchVideo(elmContainerId, i, obj);
+  this.getUrlPublicVideos = function(videoKeyUrl){
+    return this.urlPublicVideos+'?url='+videoKeyUrl;
   }
-  lista = null;
-}
-this.appendHtmlItemListPublicWatchVideo = function(elmContainerId, i, video){
-   $('#'+elmContainerId).prepend('<div class="col-lg-3 col-md-3 col-sm-3 col-xl-3 col-6 bg-white mg-b-10 list_'+elmContainerId+'" id="v_'+i+'" data-qtd_list="'+elmContainerId+'" data-item_list="'+i+'">'+
-        '<div class="thumb-img" align="center">'+
-        '<a target="_blank" rel="noopener" href="javascript:createContainerPublicWatchVideo('+i+');" alt="'+video['nome']+'" title="'+video['nome']+'">'+
-          '<img src="'+video['avatar']+'" style="width: 100%;" class="img-responsive" title="'+video['nome']+'" /></a>'+
-          '</div>'+
-            '<div class="caption" style="padding:4px">                            '+
-            '<a class="text-danger" href="/tubersnet_videos?url='+video['url']+'" alt="Ver detalhes do vÃ­deo" title="Ver detalhes do vÃ­deo"><b style="font-size: 12px;">'+video['nome']+'</b></a>'+
-            '<div><i class="fa fa-tag"></i> <!--a href="/tubersnet_videos?cat='+video['categoria_video_id']+'" alt="Ver detalhes da Categoria" title="Ver detalhes da Categoria"-->'+video['categoria_video_id_label']+'<!--/a--></div>'+
-          '</div>'+
-          '</div>');
-}
-this.getHtmlVideoDesc = function(obj){
-  return '<h4 style="text-align: center;"><strong>VÍDEO: </strong> '+
-                        '<a href="/video?url='+obj.url+'"  style="text-align: center;" '+
-                          'alt="Ver detalhes do Vídeo" title="Ver detalhes do Vídeo">'+obj.nome+'</a></h4>'+
-                          '<div>'+obj.description+'</div>';
-}
-this.getPublicHtmlVideoDesc = function(obj){
-  return '<h4 style="text-align: center;"><strong>VÍDEO: </strong> '+
-                        '<a href="/tubersnet_videos?url='+obj.url+'"  style="text-align: center;" '+
-                          'alt="Ver detalhes do Vídeo" title="Ver detalhes do Vídeo">'+obj.nome+'</a></h4>'+
-                          '<div>'+obj.description+'</div>';
-}
+  this.getUrlVideos = function(videoKeyUrl){
+    return this.urlVideos+'?url='+videoKeyUrl;
+  }
+  this.showModalPublicWatchVideo = function(videoNome, videoUrl){
+    this.youtubePlayer=undefined;
+    var pluginUi = $.Solves.getSolvesPlugin('SolvesUi');
+    if(pluginUi!=null){
+      pluginUi.showModalSmall(videoNome, '<div id="modal_player_container" class="modal_player_container">CARREGANDO VÍDEO...</div>', '<a href="javascript:$.SolveUi.closeModalSmall();">Fechar</a>');   
+      this.onYouTubeIframeAPIReady("modal_player_container", videoUrl);
+    }else{
+      console.log(this.solvesPluginName+' não encontrou SolvesUi');
+    }
+  }
+  this.listPublicWatchVideo = function(elmContainerId){
+    var pluginStorage = $.Solves.getSolvesPlugin('SolvesStorage');
+    if(pluginStorage!=null){
+      var lista = pluginStorage.getCache(this.PARAM_NAME_VIDEOS)[0];
+      $('#'+elmContainerId).html('');
+      for(var i in lista){
+        var obj = lista[i];
+        this.appendHtmlItemListPublicWatchVideo(elmContainerId, i, obj);
+      }
+      lista = null;
+    }else{
+      console.log(this.solvesPluginName+' não encontrou SolvesStorage');
+    }
+  }
+  this.appendHtmlItemListPublicWatchVideo = function(elmContainerId, i, video){
+    var urlVideoDetails = this.getUrlPublicVideos(video['url']);
+     $('#'+elmContainerId).prepend('<div class="col-lg-3 col-md-3 col-sm-3 col-xl-3 col-6 bg-white mg-b-10 list_'+elmContainerId+'" id="v_'+i+'" data-qtd_list="'+elmContainerId+'" data-item_list="'+i+'">'+
+          '<div class="thumb-img" align="center">'+
+          '<a target="_blank" rel="noopener" href="javascript:$.SolvesVideo.createContainerPublicWatchVideo('+i+');" alt="'+video['nome']+'" title="'+video['nome']+'">'+
+            '<img src="'+video['avatar']+'" style="width: 100%;" class="img-responsive" title="'+video['nome']+'" /></a>'+
+            '</div>'+
+              '<div class="caption" style="padding:4px">                            '+
+              '<a class="text-danger" href="'+urlVideoDetails+'" alt="Ver detalhes do vídeo" title="Ver detalhes do vídeo"><b style="font-size: 12px;">'+video['nome']+'</b></a>'+
+              '<div><i class="fa fa-tag"></i> <!--a href="/?cat='+video['categoria_video_id']+'" alt="Ver detalhes da Categoria" title="Ver detalhes da Categoria"-->'+video['categoria_video_id_label']+'<!--/a--></div>'+
+            '</div>'+
+            '</div>');
+  }
+  this.getHtmlVideoDesc = function(obj){
+    var urlVideoDetails = this.getUrlVideos(obj.url);
+    return '<h4 style="text-align: center;"><strong>VÍDEO: </strong> '+
+                          '<a href="'+urlVideoDetails+'"  style="text-align: center;" '+
+                            'alt="Ver detalhes do Vídeo" title="Ver detalhes do Vídeo">'+obj.nome+'</a></h4>'+
+                            '<div>'+obj.description+'</div>';
+  }
+  this.getPublicHtmlVideoDesc = function(obj){
+  var urlVideoDetails = this.getUrlPublicVideos(obj.url);
+    return '<h4 style="text-align: center;"><strong>VÍDEO: </strong> '+
+                          '<a href="'+urlVideoDetails+'"  style="text-align: center;" '+
+                            'alt="Ver detalhes do Vídeo" title="Ver detalhes do Vídeo">'+obj.nome+'</a></h4>'+
+                            '<div>'+obj.description+'</div>';
+  }
 this.createContainerPublicWatchVideo = function(id){
-  $.Atual.objeto = $.Atual.subObjetos["videos"][0][id];
+  var pluginStorage = $.Solves.getSolvesPlugin('SolvesStorage');
+  if(pluginStorage!=null){
+    $.Solves.objeto = pluginStorage.getCache(this.PARAM_NAME_VIDEOS)[0][id];
+    $('#'+elmContainerId).html('');
+    for(var i in lista){
+      var obj = lista[i];
+      this.appendHtmlItemListPublicWatchVideo(elmContainerId, i, obj);
+    }
+    lista = null;
+  }else{
+    console.log(this.solvesPluginName+' não encontrou SolvesStorage');
+  }
   this.youtubePlayer=undefined;
   $('#v_'+id+'_player_container').remove();
   $('.player_container').remove();
@@ -101,26 +153,24 @@ this.createContainerPublicWatchVideo = function(id){
           '<center>'+
             '<div class="row" style="padding: 8px; background: rgb(85, 85, 85); color: #FFFFFF;">'+
               '<div class="col-lg-6 col-md-6 col-sm-12 col-xl-12" style="text-align:left;">'+
-                '<div><strong>CANAL: </strong><span id="watch_channel_desc_name">'+
-'<!-- a href="/tubersnet_canais?url='+$.Atual.objeto.channel_id_url+'" style="color:#FFFFFF" alt="Ver detalhes do canal" title="Ver detalhes do canal"-->'+
-$.Atual.objeto['channel_id_label']+'<!-- /a--></span></div>'+
+                '<div><strong>CANAL: </strong><span id="watch_channel_desc_name"></span></div>'+
               '</div>'+
               '<div class="col-lg-6 col-md-6 col-sm-12 col-xl-12" style="text-align:right">'+
-                  '<div id="watch_channel_desc">'+getSubscribeButton($.Atual.objeto.channel_id_url, true)+'</div>'+
+                  '<div id="watch_channel_desc">'+this.getSubscribeButton($.Solves.objeto.channel_id_url, true)+'</div>'+
               '</div>'+
             '</div>'+
-            '<div id="watch_player">CARREGANDO VÃDEO...<!-- VIDEO WILL BE EMBEDED HERE--></div>'+
-            '<div id="watch_player_desc" style="padding: 8px;background: rgb(192, 192, 192); color:#000000;">'+getPublicHtmlVideoDesc($.Atual.objeto)+'</div>'+
+            '<div id="watch_player">CARREGANDO VÍDEO...<!-- VIDEO WILL BE EMBEDED HERE--></div>'+
+            '<div id="watch_player_desc" style="padding: 8px;background: rgb(192, 192, 192); color:#000000;">'+this.getPublicHtmlVideoDesc($.Solves.objeto)+'</div>'+
           '</center>'+
         '</div><!-- card-body -->              '+
       '</div><!-- card -->'+
     '</div>').focus();
-   onYouTubeIframeAPIReady('watch_player', $.Atual.objeto.url);
+   this.onYouTubeIframeAPIReady('watch_player', $.Solves.objeto.url);
 }
 this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unblockBtnId, counterContainerId){  
 //console.log('contagem_tempo:'+this.secondsToWatch);
     if (this.secondsToWatch == 0) {
-      this.secondsToWatch = 45;
+      this.restartSecondsToWatch();
       $('#'+counterContainerId).hide();
       $('#'+counterNumberElmId).html(0);
       $('#'+counterSecondsTextElmId).html('segundo');
@@ -131,28 +181,28 @@ this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unbl
         this.blockNextButtonVideo(unblockBtnId);
         $('#'+counterNumberElmId).html(this.secondsToWatch);
         $('#'+counterSecondsTextElmId).html('segundo'+(this.secondsToWatch>1 ? 's': ''));
-        var secs = (this.secondsToWatch==45 ? 4000 : 1000);
+        var secs = (this.secondsToWatch==this.initialSecondsToWatch ? 4000 : 1000);
         this.secondsToWatch = this.secondsToWatch - 1;
       }
-      this.timeoutContagemWatch = setTimeout("contagem_tempo('"+counterNumberElmId+"', '"+counterSecondsTextElmId+"', '"+unblockBtnId+"', '"+counterContainerId+"')", secs);
+      this.timeoutContagemWatch = setTimeout("$.SolvesVideo.contagem_tempo('"+counterNumberElmId+"', '"+counterSecondsTextElmId+"', '"+unblockBtnId+"', '"+counterContainerId+"')", secs);
     }                            
 }   
 this.blockNextButtonVideo = function(unblockBtnId){
   $('#'+unblockBtnId).removeClass('btn-success').addClass('btn-dark').attr('aria-disabled', 'true').attr('disabled', 'true').addClass('disabled').attr('href','return false');
 }
 this.unblockNextButtonVideo = function(unblockBtnId){
-  $('#'+unblockBtnId).removeClass('btn-dark').addClass('btn-success').removeAttr('aria-disabled').removeAttr('disabled').removeClass('disabled').attr('href','javascript:watchNextVideo()');
+  $('#'+unblockBtnId).removeClass('btn-dark').addClass('btn-success').removeAttr('aria-disabled').removeAttr('disabled').removeClass('disabled').attr('href','javascript:$.SolvesVideo.watchNextVideo()');
 }
 this.watchNextVideo = function(){
-    //TODO SOLVES
-  if(isLogado()){ 
-    //envia informaÃ§Ã£o do video atual assistido e busca novo video.
-    //TODO PARAMS
-    this.doAjaxVideoFindToWatch('watch_player', 'watch_player_desc', 'watch_channel_desc', 'watch_channel_desc_name');
+  if(!this.loggedInToWatchNextVideo || $.Solves.isLogado()){ 
+    //TODO function
+    this.doAjaxVideoFindToWatch(this.containerWatchPlayerElmId, this.containerWatchPlayerDescElmId, this.containerWatchChannelDescElmId, this.containerWatchChannelDescNameElmId);
   }else{
     this.stopAndClosePlayer();
-    //TODO UI
-    closeModalSmall();
+    var pluginUi = $.Solves.getSolvesPlugin('SolvesUi');
+    if(pluginUi!=null){
+      pluginUi.closeModalSmall();
+    }
   }
 }
 this.likeVideo = function(videoId){
@@ -183,7 +233,7 @@ this.getPlayerDuration = function(){
 }
 this.showNoVideoPlayer = function(idContainerVideo, idContainerVideoDesc, idContainerChannelDesc, idElmChannelName){
   this.blockNextButtonVideo('watch_next');
-  var msg = '<h2>Aguarde novos vÃ­deos!</h2>Parece que todos os vÃ­deos foram assistidos conforme a quantidade de pontos.';
+  var msg = '<h2>Aguarde novos vídeos!</h2>Parece que todos os vídeos foram assistidos conforme a quantidade de pontos.';
   if( $('#'+idContainerVideo+'_msg').length>0){
     $('#'+idContainerVideo+'_msg').remove();
   }
@@ -220,23 +270,23 @@ this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
 }
 this.onPlayerReady = function(event) {
   event.target.playVideo();
-  startContadorTempoMinimoVideo();
+  this.startContadorTempoMinimoVideo();
 }
 this.startContadorTempoMinimoVideo = function(){ 
-  if(isLogado()){
-    this.secondsToWatch = 45;
-    contagem_tempo('watch_counter_number', 'watch_counter_secs', 'watch_next', 'watch_counter');
+  if(!this.loggedInToWatchNextVideo || $.Solves.isLogado()){ 
+    this.restartSecondsToWatch();
+    this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId);
   }
 }
 this.onPlayerStateChange = function(event) {
   if(this.youtubePlayer.getPlayerState()==YT.PlayerState.ENDED){
-    watchNextVideo();
+    this.watchNextVideo();
   }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.PLAYING){
     //console.log('playing');
      this.videoPause = false;
-     loaded();
+     $.Solves.loaded();
      if(this.secondsToWatch==0){
-        this.secondsToWatch = 45;
+      this.restartSecondsToWatch();
      }
   }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.UNSTARTED && getPlayerDuration()==0){
     //console.log('noPlayerDuration');
@@ -251,7 +301,7 @@ this.stopVideo = function() {
   this.youtubePlayer.stopVideo();
 }
 this.getVideoIdYoutubeByUrl = function(url){
-    url = removeEspacos(url);
+    url = $.Solves.removeEspacos(url);
     url = url.replace("https://www.youtube.com/watch?v=", "");
     url = url.replace("http://www.youtube.com/watch?v=", "");
     url = url.replace("http://m.youtube.com/watch?v=", "");
@@ -271,12 +321,12 @@ this.getVideoIdYoutubeByUrl = function(url){
    return url;
 }
 this.getChannelIdYoutubeByUrl = function(url){
-    url = removeEspacos(url);
+    url = $.Solves.removeEspacos(url);
     url = url.replace("https://www.youtube.com/channel/", "");
    return url;
 }   
 this.getStatisticsYoutubeChannel = function(channel_url){
-  doAjaxExternal(URL_API_ESTATISTICAS + "id=" + channel_url, 'GET', {id:channel_url}, 
+  $.Solves.doAjaxExternal(URL_API_ESTATISTICAS + "id=" + channel_url, 'GET', {id:channel_url}, 
     function(data){ 
         result = jQuery.parseJSON(data);
     }, 
@@ -285,7 +335,7 @@ this.getStatisticsYoutubeChannel = function(channel_url){
     }
   );
 }
-  this.configSelect2Channels = function(dropParentId, p_selectFieldClass){
+this.configSelect2Channels = function(dropParentId, p_selectFieldClass){
     this.selectFieldClass = p_selectFieldClass;
     if($('.'+this.selectFieldClass).length>0){ 
         $('.'+this.selectFieldClass).select2({

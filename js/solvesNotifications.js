@@ -6,7 +6,7 @@ function SolvesNotifications() {
   this.solvesPluginName = 'SolvesNotifications';
   this.versionId = 1;
   this.version = '1.0';
-  this.icon = $.Solves.icon;
+  this.icon = null;
   this.permission = Notification.permission;
   this.actions = [];
   this.fireBaseConfig =null; 
@@ -53,6 +53,12 @@ function SolvesNotifications() {
   this.setIcon = function(p){
     this.icon = p;
   }
+  this.getIcon = function(){
+    if($.Solves.isNotEmpty(this.icon)){ 
+      return this.icon;
+    }
+    return $.Solves.icon;
+  }
   this.addAction = function(actionType, title, icon){
     var act = {action: actionType, title: title};
     if($.Solves.isNotEmpty(icon)){
@@ -83,6 +89,7 @@ function SolvesNotifications() {
   this.mostraPwaNotification = function(title, json){
     console.log("mostraPwaNotification = function("+title+", json){"); console.log(json);
     navigator.serviceWorker.getRegistration().then(function(reg) {
+        console.log(reg);
         console.log("r3mostraPwaNotification = function("+title+", json){"); console.log(json);
         reg.showNotification(title, json);
     });
@@ -91,7 +98,7 @@ function SolvesNotifications() {
     if(!$.Solves.isNotEmpty(idNotification)){
         idNotification = $.Solves.siteShortName+'_'+$.Solves.getDataAtualFormatada()+'_'+Math.random();
     }
-    var json = {title:title, body:body, tag:idNotification, icon: this.icon}
+    var json = {title:title, body:body, tag:idNotification, icon: this.getIcon()}
     if($.Solves.isNotEmpty(image)){
       json["image"] = image;
     }
