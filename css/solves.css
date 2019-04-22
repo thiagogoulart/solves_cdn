@@ -1,0 +1,39 @@
+
+/** OVERLAY  **/
+.overlay {
+    background: transparent url(../img/overlay.png) repeat top left;
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 100;
+}
+#overlay_loading {
+    display: none;
+    width: 80px;
+    height: 100px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    color: #FFFFFF;
+    z-index: 101;
+}
+.sk-cube-grid .sk-cube{
+  background-color: #ea1a1a;
+}
+.hidden{
+    display:none;
+}
+.modal_player_container{
+    width: 330px;
+}
+.caption{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+html,body,.sl-pagebody{
+  background: #FFFFFF;  
+}

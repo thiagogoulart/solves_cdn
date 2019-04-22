@@ -140,7 +140,7 @@ function SolvesNotifications() {
       // [START_EXCLUDE]
       // In many cases once an app has been granted notification permission, it
       // should update its UI reflecting this.
-      resetUI();
+      fireBaseResetUI();
       // [END_EXCLUDE]
     }).catch(function(err) {
       console.log('Unable to get permission to notify.', err);
@@ -150,21 +150,22 @@ function SolvesNotifications() {
   this.fireBaseGetTokenAtual = function(){
     // Get Instance ID token. Initially this makes a network call, once retrieved
     // subsequent calls to getToken will return from cache.
+    var self = this;
     this.fireBaseMessaging.getToken().then(function(currentToken) {
       if (currentToken) {
-        this.fireBaseSendTokenToServer(currentToken);
-        this.fireBaseUpdateUIForPushEnabled(currentToken);
+        self.fireBaseSendTokenToServer(currentToken);
+        self.fireBaseUpdateUIForPushEnabled(currentToken);
       } else {
         // Show permission request.
         console.log('No Instance ID token available. Request permission to generate one.');
         // Show permission UI.
-        this.fireBaseUpdateUIForPushPermissionRequired();
-        this.fireBaseSetTokenSentToServer(false);
+        self.fireBaseUpdateUIForPushPermissionRequired();
+        self.fireBaseSetTokenSentToServer(false);
       }
     }).catch(function(err) {
       console.log('An error occurred while retrieving token. ', err);
-      this.fireBaseShowToken('Error retrieving Instance ID token. ', err);
-      this.fireBaseSetTokenSentToServer(false);
+      self.fireBaseShowToken('Error retrieving Instance ID token. ', err);
+      self.fireBaseSetTokenSentToServer(false);
     });
   }
   this.fireBaseMonitoreTokenAtual = function(){
@@ -251,7 +252,7 @@ function SolvesNotifications() {
       }
     }
   }
-  function updateUIForPushEnabled(currentToken) {
+  this.fireBaseUpdateUIForPushEnabled = function(currentToken) {
     if($.Solves.isNotEmpty(this.fireBaseTokenDivId)){
       this.showHideDiv(this.fireBaseTokenDivId, true);
     }    
@@ -260,7 +261,7 @@ function SolvesNotifications() {
     }    
     this.fireBaseShowToken(currentToken);
   }
-  function updateUIForPushPermissionRequired() {
+  this.fireBaseUpdateUIForPushPermissionRequired = function() {
     if($.Solves.isNotEmpty(this.fireBaseTokenDivId)){
       this.showHideDiv(this.fireBaseTokenDivId, false);
     }    
@@ -268,7 +269,7 @@ function SolvesNotifications() {
       this.showHideDiv(this.fireBasePermissionDivId, true);
     } 
   };
-  function resetUI() {
+  this.fireBaseResetUI = function() {
     this.fireBaseClearMessages();
     this.fireBaseShowToken('loading...');
     // [START get_token]
@@ -292,11 +293,13 @@ function SolvesNotifications() {
     });
     // [END get_token]
   };
-  this.fireBaseShowToken = function(currentToken) {
+  this.fireBaseShowToken = function(currentToken, error) {
     // Show token in console and UI.
-    if($.Solves.isNotEmpty(this.fireBaseTokenDivId)){
+    if($.Solves.isNotEmpty(this.fireBaseTokenDivId) && $('#'+this.fireBaseTokenDivId).length>0){
       var tokenElement = document.querySelector('#'+this.fireBaseTokenDivId);
       tokenElement.textContent = currentToken;
+    }else{
+      console.log(currentToken);
     }
   }
   this.showHideDiv = function(divId, show){

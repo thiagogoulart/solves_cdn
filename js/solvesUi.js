@@ -8,18 +8,20 @@ function SolvesUi() {
   this.version = '1.0';
 
   this.init = function(){
-    $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesNotifications);
+    $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
     //TODO validações de dependencias
   };
   this.destroy = function(){
     this.clearData();
   };
   this.showHideDiv = function(divId, show) {
-    const div = document.querySelector('#' + divId);
-    if (show) {
-      div.style = 'display: visible';
-    } else {
-      div.style = 'display: none';
+    if($.Solves.isNotEmpty(divId) && $('#' + divId).length>0){
+      const div = document.querySelector('#' + divId);
+      if (show) {
+        div.style = 'display: visible';
+      } else {
+        div.style = 'display: none';
+      }
     }
   }
   this.doFxShowingClass = function(elmClass){
