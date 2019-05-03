@@ -16,7 +16,7 @@ function SolvesUi() {
   };
   this.showHideDiv = function(divId, show) {
     if($.Solves.isNotEmpty(divId) && $('#' + divId).length>0){
-      const div = document.querySelector('#' + divId);
+      var div = document.querySelector('#' + divId);
       if (show) {
         div.style = 'display: visible';
       } else {

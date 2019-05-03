@@ -7,7 +7,7 @@ function SolvesNotifications() {
   this.versionId = 1;
   this.version = '1.0';
   this.icon = null;
-  this.permission = Notification.permission;
+  this.permission = null;
   this.actions = [];
   this.fireBaseConfig =null; 
   this.fireBaseMessaging=null;
@@ -71,26 +71,27 @@ function SolvesNotifications() {
     if (!("Notification" in window)) {
         console.log("This browser does not support desktop notification");
         return;
-    }else if (Notification.permission === "granted"){
-        console.log("Notification permission granted");
-        this.mostraPwaNotification(title, json);
-    }else if (Notification.permission !== "denied") {
-        console.log("Notification permission IS NOT denied");
-        Notification.requestPermission().then(function (permission) {
-          $.SolvesNotifications.permission = permission;
-        console.log("Notification permission request: "+permission);
-          if (permission === "granted") {
-            this.mostraPwaNotification(title, json);
-          }
-        });
+    }else{
+      this.permission = Notification.permission;
+      if (Notification.permission === "granted"){
+          console.log("Notification permission granted");
+          this.mostraPwaNotification(title, json);
+      }else if (Notification.permission !== "denied") {
+          console.log("Notification permission IS NOT denied");
+          Notification.requestPermission().then(function (permission) {
+            $.SolvesNotifications.permission = permission;
+          console.log("Notification permission request: "+permission);
+            if (permission === "granted") {
+              this.mostraPwaNotification(title, json);
+            }
+          });
+      }
     }
     this.clearData();
   };
   this.mostraPwaNotification = function(title, json){
     console.log("mostraPwaNotification = function("+title+", json){"); console.log(json);
     navigator.serviceWorker.getRegistration().then(function(reg) {
-        console.log(reg);
-        console.log("r3mostraPwaNotification = function("+title+", json){"); console.log(json);
         reg.showNotification(title, json);
     });
   }
@@ -114,18 +115,21 @@ function SolvesNotifications() {
     if (!("Notification" in window)) {
         console.log("This browser does not support desktop notification");
         return;
-    }else if (this.fireBaseMessaging.permission === "granted"){
-        console.log("Notification permission granted");
-        this.mostraPwaNotification(title, json);
-    }else if (this.fireBaseMessaging.permission !== "denied") {
-        console.log("Notification permission IS NOT denied");
-        Notification.requestPermission().then(function (permission) {
-          $.SolvesNotifications.permission = permission;
-        console.log("Notification permission request: "+permission);
-          if (permission === "granted") {
-            this.mostraPwaNotification(title, json);
-          }
-        });
+    }else{
+      this.permission = Notification.permission;
+      if (this.fireBaseMessaging.permission === "granted"){
+          console.log("Notification permission granted");
+          this.mostraPwaNotification(title, json);
+      }else if (this.fireBaseMessaging.permission !== "denied") {
+          console.log("Notification permission IS NOT denied");
+          Notification.requestPermission().then(function (permission) {
+            $.SolvesNotifications.permission = permission;
+          console.log("Notification permission request: "+permission);
+            if (permission === "granted") {
+              this.mostraPwaNotification(title, json);
+            }
+          });
+      }
     }
     this.clearData();
   };
@@ -233,9 +237,9 @@ function SolvesNotifications() {
   this.fireBaseAppendMessage = function(payload) {
    // Add a message to the messages element.
     if($.Solves.isNotEmpty(this.fireBaseMessagesDivId)){
-      const messagesElement = document.querySelector('#'+this.fireBaseMessagesDivId);
-      const dataHeaderELement = document.createElement('h5');
-      const dataElement = document.createElement('pre');
+      var messagesElement = document.querySelector('#'+this.fireBaseMessagesDivId);
+      var dataHeaderELement = document.createElement('h5');
+      var dataElement = document.createElement('pre');
       dataElement.style = 'overflow-x:hidden;';
       dataHeaderELement.textContent = 'Received message:';
       dataElement.textContent = JSON.stringify(payload, null, 2);
@@ -246,7 +250,7 @@ function SolvesNotifications() {
   this.fireBaseClearMessages = function() {
   // Clear the messages element of all children.
     if($.Solves.isNotEmpty(this.fireBaseMessagesDivId)){
-      const messagesElement = document.querySelector('#'+this.fireBaseMessagesDivId);
+      var messagesElement = document.querySelector('#'+this.fireBaseMessagesDivId);
       while (messagesElement.hasChildNodes()) {
         messagesElement.removeChild(messagesElement.lastChild);
       }
