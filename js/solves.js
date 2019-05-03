@@ -424,14 +424,14 @@ function Solves() {
     var pluginGeo = this.getSolvesPlugin('SolvesGeo');
     if(pluginStorage!=null && pluginGeo!=null){
       if(pluginGeo.addressData!=undefined && pluginGeo.addressData!=null){
-        json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_ADDRESS_DATA+'='+escapeTextField(JSON.stringify(pluginGeo.addressData));
+        json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_ADDRESS_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.addressData));
       }
       if(pluginGeo.geoData!=undefined && pluginGeo.geoData!=null){
-      json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_GEO_DATA+'='+escapeTextField(JSON.stringify(pluginGeo.geoData));
+      json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_GEO_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.geoData));
       }
     }
     if(dados!=undefined){
-      json+= (json.length>0 ? '&' : '?')+this.PARAM_NAME_DADOS+'='+escapeTextField(JSON.stringify(dados));
+      json+= (json.length>0 ? '&' : '?')+this.PARAM_NAME_DADOS+'='+this.escapeTextField(JSON.stringify(dados));
     }
     return json;
   }
