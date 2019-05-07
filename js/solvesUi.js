@@ -242,7 +242,7 @@ function SolvesUi() {
       if($('.usuario_logado_alerta_email_nao_confirmado').length>0){
         $('.usuario_logado_alerta_email_nao_confirmado').show();
       }
-      addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
+      this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
     }
     $('.usuario_logado_nome').html(getPerfilLogado().nome);
     $('.usuario_logado_email').html(getPerfilLogado().email);

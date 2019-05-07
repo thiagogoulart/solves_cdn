@@ -10,14 +10,20 @@ function SolvesAuth() {
   this.urlTermosUso = null;
   this.urlTermosPrivacidade = null;
 
+  this.authSuccessFunc;
+  this.authErrorFunc;
+
   /**/
   this.fireBaseAuthTypes = ['all','google','facebook','twitter','email','github','phone','anonymous'];
   this.fireBaseAuthUsedTypes = [];
   this.fireBaseAuthDivId = null;
   this.fireBaseUiAuthObject = null;
+  this.fireBaseSignInPopup = true;
   this.fireBaseSignInOptions = [];
   this.fireBaseAuthUser = null;
   this.fireBaseAuthUserAccessToken = null;
+  this.firebaseGoogleAuthClientId = null;
+  this.firebaseRedirectOnSuccess = true;
 
 
   this.init = function(){
@@ -29,29 +35,75 @@ function SolvesAuth() {
     this.fireBaseAuthUser = null;
     this.fireBaseAuthUserAccessToken=null;
   };
+  this.getCaptchaParams = function(){
+    return {type: 'image',size: 'normal',badge: 'bottomleft'};
+  };
+  this.setAuthSuccessFunc = function(f){
+    this.authSuccessFunc = f;
+  };
+  this.getAuthSuccessFunc = function(){
+    return this.authSuccessFunc;
+  };
+  this.getAuthErrorFunc = function(){
+    return this.authErrorFunc;
+  };
+  this.setAuthErrorFunc = function(f){
+    this.authErrorFunc = f;
+  };
+  this.getCallbacks = function(authSuccessFunc, authErrorFunc){
+    return {
+        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+          $.SolvesStorage.setStorageAuthUserData(authResult);
+          if (authSuccessFunc && (typeof authSuccessFunc == "function")) {authSuccessFunc(authResult);}
+          return this.firebaseRedirectOnSuccess;
+        },
+        uiShown: function() {
+          
+        },
+        signInFailure: function(error) {
+          if (authErrorFunc && (typeof authErrorFunc == "function")) {authErrorFunc(error);}
+          if (error.code != 'firebaseui/anonymous-upgrade-merge-conflict') {
+            return Promise.resolve();
+          }
+          var cred = error.credential;
+          return firebase.auth().signInWithCredential(cred);
+        }
+      };
+  };
   this.getFireBaseUiConfig = function(){
     // FirebaseUI config.
-    return {
+    var config = {
       signInSuccessUrl: this.urlLogadoSucesso,
-      signInOptions: this.fireBaseSignInOptions
+      signInOptions: this.fireBaseSignInOptions,
+      callbacks: this.getCallbacks(this.getAuthSuccessFunc(), this.getAuthErrorFunc())
     };
+    if(this.fireBaseSignInPopup){
+      config.signInFlow = 'popup';
+    }
+    if(this.urlTermosUso!==undefined && this.urlTermosUso!=null){
+      config.tosUrl = this.urlTermosUso;
+    }
+    if(this.urlTermosPrivacidade!==undefined && this.urlTermosPrivacidade!=null){
+      config.privacyPolicyUrl = this.urlTermosPrivacidade;
+    }
+    return config;
   }
   this.addFireBaseAuthusedTypes = function(type){
-    if(fireBaseAuthTypes.indexOf(type)){
+    if(this.fireBaseAuthTypes.indexOf(type)){
       this.fireBaseAuthUsedTypes.push(type);
     }
   }
   this.isFireBaseAuthType = function(type){
-    return (this.fireBaseAuthUsedTypes.indexOf[this.fireBaseAuthTypes[this.fireBaseAuthTypes.indexOf(type)]]>=0);
+    return (this.fireBaseAuthUsedTypes.indexOf(this.fireBaseAuthTypes[this.fireBaseAuthTypes.indexOf(type)])>=0);
   }
   this.initFireBaseConfig = function(){    
-    if(firebase.auth){
+    if(firebase.auth!==undefined){
       var all = this.isFireBaseAuthType('all');
       if(all || this.isFireBaseAuthType('google')){
-        this.fireBaseSignInOptions.push(firebase.auth.GoogleAuthProvider.PROVIDER_ID); 
+        this.fireBaseSignInOptions.push({provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID, scopes: [],clientId: this.firebaseGoogleAuthClientId, authMethod: 'https://accounts.google.com',customParameters: {prompt: 'select_account'}}); 
       }
       if(all || this.isFireBaseAuthType('facebook')){
-        this.fireBaseSignInOptions.push(firebase.auth.FacebookAuthProvider.PROVIDER_ID);
+        this.fireBaseSignInOptions.push({provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID, scopes: ['public_profile','email'],customParameters: {auth_type: 'reauthenticate'} });
       }
       if(all || this.isFireBaseAuthType('twitter')){
         this.fireBaseSignInOptions.push(firebase.auth.TwitterAuthProvider.PROVIDER_ID);
@@ -63,36 +115,61 @@ function SolvesAuth() {
         this.fireBaseSignInOptions.push(firebase.auth.GithubAuthProvider.PROVIDER_ID);
       }
       if(all || this.isFireBaseAuthType('phone')){
-        this.fireBaseSignInOptions.push(firebase.auth.PhoneAuthProvider.PROVIDER_ID);
+        this.fireBaseSignInOptions.push({provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,recaptchaParameters: this.getCaptchaParams(),defaultCountry: 'BR', defaultNationalNumber: '55',loginHint: '+55 (99) 99999-9999'});
       }
     }
-    if(firebaseui.auth){
+    if(firebase.auth!==undefined){
       if(this.isFireBaseAuthType('anonymous')){
         this.fireBaseSignInOptions.push(firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID);
       }
     }
     firebase.auth().onAuthStateChanged(function(user) {
-          if (user) {
-            this.fireBaseAuthUser = user;
-            this.fireBaseAuthUser.getIdToken().then(function(accessToken) {
-              this.fireBaseAuthUserAccessToken = accessToken;
-            });
-          } else {
-            this.fireBaseAuthUser=null;
-            this.fireBaseAuthUserAccessToken=null;
+        if (user) {
+          this.fireBaseAuthUser = user;
+          this.fireBaseAuthUser.getIdToken().then(function(accessToken) {
+            this.fireBaseAuthUserAccessToken = accessToken;
+          });
+        } else {
+          this.fireBaseAuthUser=null;
+          this.fireBaseAuthUserAccessToken=null;
+        }
+        $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
+        $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
+        var user = {};
+        if($.Solves.isLogado()){ 
+          if($.SolvesStorage.getStorageAuthUserData().credential.providerId==firebase.auth.FacebookAuthProvider.PROVIDER_ID){
+            user.data_nascimento = null;
+            user.email_confirmado = true;
+            user.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
+            user.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
+            user.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture;
           }
-        }, function(error) {
-          console.log(error);
-        });
+        }
+        $.Solves.atualizaPerfilLogado(user);
+      }, function(error) {
+        console.log(error);
+      });
+    firebase.auth().languageCode =  'pt';
   }
   this.showAuthScreen = function(){
     // Initialize the FirebaseUI Widget using Firebase.
     this.fireBaseUiAuthObject = new firebaseui.auth.AuthUI(firebase.auth());
     if($.Solves.isNotEmpty(this.fireBaseAuthDivId)){
-      // The start method will wait until the DOM is loaded.
-      this.fireBaseUiAuthObject.start('#'+this.fireBaseAuthDivId, this.getFireBaseUiConfig());
+      if($('#'+this.fireBaseAuthDivId).length>0){
+        this.fireBaseUiAuthObject.start('#'+this.fireBaseAuthDivId, this.getFireBaseUiConfig());
+      }else{
+        console.log('Não foi encontrado um elemento com o ID:'+this.fireBaseAuthDivId);
+      }
     }
-  }
+  };
+  this.logoff = function(){
+    firebase.auth().signOut().then(function() {
+      // Sign-out successful.
+    }).catch(function(error) {
+      console.log(error);
+    });
+    return true;
+  };
   this.openUrlTermosPrivacidade = function(){
     if($.Solves.isNotEmpty(this.urlTermosPrivacidade)){
       window.location.assign(this.urlTermosPrivacidade);

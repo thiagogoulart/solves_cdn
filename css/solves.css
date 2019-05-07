@@ -1,7 +1,7 @@
 
 /** OVERLAY  **/
 .overlay {
-    background: transparent url(../img/overlay.png) repeat top left;
+    background: transparent url('https://cdn.solves.com.br/img/overlay.png') repeat top left;
     position: fixed;
     top: 0px;
     bottom: 0px;

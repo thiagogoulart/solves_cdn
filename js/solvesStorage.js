@@ -7,6 +7,7 @@ function SolvesStorage() {
   this.versionId = 1;
   this.version = '1.0';
   /*DEFAULT KEYS*/
+  this.STORAGE_KEY_PERFIL = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
   this.STORAGE_KEY_USUARIO = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
   this.STORAGE_KEY_USERDATA = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USERDATA;
   this.STORAGE_KEY_TOKEN = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_TOKEN;
@@ -29,17 +30,23 @@ function SolvesStorage() {
     this.clearCache(this.STORAGE_KEY_ADDRESS_DATA);
     this.clearCache(this.STORAGE_KEY_GEO_DATA);
   }
+  this.getStorageAuthPerfil = function(){
+    return this.getCache(this.STORAGE_KEY_PERFIL, true);
+  }
+  this.setStorageAuthPerfil = function(p){
+    return this.setCache(this.STORAGE_KEY_PERFIL, p, true);
+  }
   this.getStorageAuthUsuario = function(){
-    return this.getCache(this.STORAGE_KEY_USUARIO);
+    return this.getCache(this.STORAGE_KEY_USUARIO, true);
   }
   this.setStorageAuthUsuario = function(p){
-    return this.setCache(this.STORAGE_KEY_USUARIO, p);
+    return this.setCache(this.STORAGE_KEY_USUARIO, p, true);
   }
   this.getStorageAuthUserData = function(){
-    return this.getCache(this.STORAGE_KEY_USERDATA);
+    return this.getCache(this.STORAGE_KEY_USERDATA, true);
   }
   this.setStorageAuthUserData = function(p){
-    return this.setCache(this.STORAGE_KEY_USERDATA, p);
+    return this.setCache(this.STORAGE_KEY_USERDATA, p, true);
   }
   this.getStorageAuthToken = function(){
     return this.getCache(this.STORAGE_KEY_TOKEN);

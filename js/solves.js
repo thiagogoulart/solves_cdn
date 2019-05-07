@@ -16,6 +16,7 @@ function Solves() {
   this.PARAM_NAME_DADOS = 'dados';
   this.PARAM_NAME_TOKEN = 'token';
   this.PARAM_NAME_USERDATA = 'userData';
+  this.PARAM_NAME_PERFIL = 'perfil';
   this.PARAM_NAME_USUARIO = 'usuario';
   this.PARAM_NAME_ADDRESS_DATA = 'addressData';
   this.PARAM_NAME_GEO_DATA = 'geoData';
@@ -50,8 +51,8 @@ function Solves() {
   }
   this.setFireBaseConfig = function(config){
         console.log('setFireBaseConfig');
-    if(config!==undefined && $.Solves.isNotEmpty(config.apiKey) && $.Solves.isNotEmpty(config.authDomain) && $.Solves.isNotEmpty(config.projectId) 
-      && $.Solves.isNotEmpty(config.messagingSenderId) && $.Solves.isNotEmpty(config.databaseURL) && $.Solves.isNotEmpty(config.storageBucket)){
+    if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
+      && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
       this.fireBaseConfig = config;
       if (!firebase || !firebase.apps.length) {
         console.log('setFireBaseConfig init');
@@ -219,7 +220,7 @@ function Solves() {
       $('#'+elmId).maskMoney({symbol:"R$",decimal:",",thousands:"."});
   }
   this.getUserLabel = function(user_id, user_id_label){
-    return ($.Solves.PERFIL_LOGADO.user_id==user_id ? 'Eu' :user_id_label);
+    return (this.PERFIL_LOGADO.user_id==user_id ? 'Eu' :user_id_label);
   }
   this.getIdade = function(date) {
      var ano_aniversario = date.substring(0,4);
@@ -460,38 +461,41 @@ function Solves() {
   }
   this.getPerfilLogado = function(){
     if(!this.isLogado()){
-      $.Solves.PERFIL_LOGADO=null;
+      this.PERFIL_LOGADO=null;
     }
-    else if($.Solves.PERFIL_LOGADO==null){
+    else if(this.PERFIL_LOGADO==null){
       //store
       var pluginStorage = this.getSolvesPlugin('SolvesStorage');
       if(pluginStorage!=null){
-        $.Solves.PERFIL_LOGADO = pluginStorage.getStorageAuthUsuario();
+        this.PERFIL_LOGADO = pluginStorage.getStorageAuthPerfil();
       }else{
         console.log('logoff sem SolvesStorage.');
       }
     }
-    return $.Solves.PERFIL_LOGADO;
+    return this.PERFIL_LOGADO;
   }
   this.loaded = function(){
-    $.Solves.submiting = false;
+    this.submiting = false;
     var pluginUi = this.getSolvesPlugin('SolvesUi');
     if(pluginUi!=null){
       return pluginUi.loaded();
     }
   }
   this.atualizaPerfilLogado = function(obj){
-    $.Solves.getPerfilLogado().data_nascimento = obj.data_nascimento;
-    $.Solves.getPerfilLogado().email_confirmado = this.isTrue(obj.email_confirmado);
-    $.Solves.getPerfilLogado().email = obj.email;
-    $.Solves.getPerfilLogado().nome = obj.nome;
-    $.Solves.getPerfilLogado().avatar = obj.avatar;
-    $.Solves.getPerfilLogado().idade = getIdade(this.getPerfilLogado().data_nascimento);  
-
-    $.Solves.PERFIL_LOGADO = $.Solves.getPerfilLogado();
+    if(this.getPerfilLogado()==null){
+      this.PERFIL_LOGADO = {};
+    }
+    this.PERFIL_LOGADO.data_nascimento = obj.data_nascimento;
+    this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
+    this.PERFIL_LOGADO.email = obj.email;
+    this.PERFIL_LOGADO.nome = obj.nome;
+    this.PERFIL_LOGADO.avatar = obj.avatar;
+    if(this.PERFIL_LOGADO.data_nascimento!=null){
+      this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);  
+    }
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
-      pluginStorage.setStorageAuthUsuario(JSON.stringify( $.Solves.PERFIL_LOGADO));
+      pluginStorage.setStorageAuthPerfil(JSON.stringify( this.PERFIL_LOGADO));
     }
     
     var pluginUi = this.getSolvesPlugin('SolvesUi');
