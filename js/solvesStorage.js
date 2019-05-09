@@ -7,7 +7,7 @@ function SolvesStorage() {
   this.versionId = 1;
   this.version = '1.0';
   /*DEFAULT KEYS*/
-  this.STORAGE_KEY_PERFIL = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
+  this.STORAGE_KEY_PERFIL = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_PERFIL;
   this.STORAGE_KEY_USUARIO = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
   this.STORAGE_KEY_USERDATA = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USERDATA;
   this.STORAGE_KEY_TOKEN = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_TOKEN;
@@ -25,6 +25,7 @@ function SolvesStorage() {
     this.clearCache(this.STORAGE_KEY_USUARIO);
     this.setEmptyCache(this.STORAGE_KEY_USERDATA);
     this.setEmptyCache(this.STORAGE_KEY_TOKEN);
+    this.setEmptyCache(this.STORAGE_KEY_PERFIL);
   }
   this.clearGeoData = function(){
     this.clearCache(this.STORAGE_KEY_ADDRESS_DATA);

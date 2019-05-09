@@ -34,6 +34,7 @@ function Solves() {
   this.lista = [];
   this.objetoId = null;
   this.objeto = null;
+  this.funcao = null;
   this.subObjetoId = null;
   this.subObjeto = null;
   this.subObjetoQtd = 0;
@@ -174,18 +175,18 @@ function Solves() {
            success: function(data){ 
               successFunc(data);
               result = jQuery.parseJSON(data);
-              if(this.isTrue(result['logoff'])){
+              if($.Solves.isTrue(result['logoff'])){
                 console.log('não autorizado.');
-                this.logoff();
+                $.Solves.logoff();
               }
-              this.loaded();
+              $.Solves.loaded();
             },
             error: function(data){ 
               errorFunc(data);
-              this.loaded();
+              $.Solves.loaded();
             },
             complete: function(data){
-              this.loaded();
+              $.Solves.loaded();
             }
       };
   }
@@ -411,8 +412,12 @@ function Solves() {
         var pluginStorage = this.getSolvesPlugin('SolvesStorage');
         if(pluginStorage!=null){
           var token = pluginStorage.getStorageAuthToken();
-          var userData = pluginStorage.getStorageAuthUserData();
-          return this.PARAM_NAME_TOKEN+'='+token+'&'+this.PARAM_NAME_USERDATA+'='+userData;
+          var userData = JSON.stringify(pluginStorage.getStorageAuthUserData());
+          var usuario = JSON.stringify(pluginStorage.getStorageAuthUsuario());
+          var perfil = JSON.stringify(pluginStorage.getStorageAuthPerfil());
+          return this.PARAM_NAME_TOKEN+'='+token+'&'+this.PARAM_NAME_USERDATA+'='+userData
+            +'&'+this.PARAM_NAME_USUARIO+'='+usuario
+            +'&'+this.PARAM_NAME_PERFIL+'='+perfil;
         }else{
           console.log('logoff sem SolvesStorage.');
         }
@@ -422,13 +427,15 @@ function Solves() {
   this.getJsonData = function(dados){
     var json = this.getTokenUrlParam();
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
-    var pluginGeo = this.getSolvesPlugin('SolvesGeo');
-    if(pluginStorage!=null && pluginGeo!=null){
-      if(pluginGeo.addressData!=undefined && pluginGeo.addressData!=null){
-        json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_ADDRESS_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.addressData));
-      }
-      if(pluginGeo.geoData!=undefined && pluginGeo.geoData!=null){
-      json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_GEO_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.geoData));
+    if(pluginStorage!=null){
+      var pluginGeo = this.getSolvesPlugin('SolvesGeo');
+      if(pluginGeo!=null){
+        if(pluginGeo.addressData!=undefined && pluginGeo.addressData!=null){
+          json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_ADDRESS_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.addressData));
+        }
+        if(pluginGeo.geoData!=undefined && pluginGeo.geoData!=null){
+        json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_GEO_DATA+'='+this.escapeTextField(JSON.stringify(pluginGeo.geoData));
+        }
       }
     }
     if(dados!=undefined){
@@ -437,7 +444,7 @@ function Solves() {
     return json;
   }
   this.refreshUrlBrowser = function(url, title){
-    window.history.pushState(url, this.siteTitulo+(isNotEmpty(title)?' '+title:''), url);
+    window.history.pushState(url, this.siteTitulo+(this.isNotEmpty(title)?' '+title:''), url);
   }
   this.logoff = function(){
       this.PERFIL_LOGADO = null;
@@ -453,7 +460,7 @@ function Solves() {
   this.isLogado = function(){
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
-      return this.isNotEmpty(pluginStorage.getStorageAuthUsuario());
+      return (this.isNotEmpty(pluginStorage.getStorageAuthUsuario()) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil()) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil().email) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil().nome));
     }else{
       console.log('logoff sem SolvesStorage.');
     }
@@ -482,20 +489,24 @@ function Solves() {
     }
   }
   this.atualizaPerfilLogado = function(obj){
-    if(this.getPerfilLogado()==null){
-      this.PERFIL_LOGADO = {};
-    }
-    this.PERFIL_LOGADO.data_nascimento = obj.data_nascimento;
-    this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
-    this.PERFIL_LOGADO.email = obj.email;
-    this.PERFIL_LOGADO.nome = obj.nome;
-    this.PERFIL_LOGADO.avatar = obj.avatar;
-    if(this.PERFIL_LOGADO.data_nascimento!=null){
-      this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);  
+    if(obj==null){
+      this.PERFIL_LOGADO = null;
+    }else{ 
+      if(this.getPerfilLogado()==null){
+        this.PERFIL_LOGADO = {};
+      }
+      this.PERFIL_LOGADO.data_nascimento = obj.data_nascimento;
+      this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
+      this.PERFIL_LOGADO.email = obj.email;
+      this.PERFIL_LOGADO.nome = obj.nome;
+      this.PERFIL_LOGADO.avatar = obj.avatar;
+      if(this.PERFIL_LOGADO.data_nascimento!=null){
+        this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);  
+      }
     }
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
-      pluginStorage.setStorageAuthPerfil(JSON.stringify( this.PERFIL_LOGADO));
+      pluginStorage.setStorageAuthPerfil(this.PERFIL_LOGADO);
     }
     
     var pluginUi = this.getSolvesPlugin('SolvesUi');

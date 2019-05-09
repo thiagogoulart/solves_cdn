@@ -10,6 +10,7 @@ function SolvesUi() {
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
     //TODO validações de dependencias
+    $('.usuario_logado_show').hide();
   };
   this.destroy = function(){
     this.clearData();
@@ -238,19 +239,34 @@ function SolvesUi() {
   }
   this.preencheHtmlUsuarioLogado = function(){
     $.Solves.getPerfilLogado();
-    if(($.Solves.getPerfilLogado().email_confirmado==undefined || !$.Solves.isTrue($.Solves.getPerfilLogado().email_confirmado))){  
-      if($('.usuario_logado_alerta_email_nao_confirmado').length>0){
-        $('.usuario_logado_alerta_email_nao_confirmado').show();
+    if($.Solves.getPerfilLogado()==null){
+      $('.usuario_logado_show').hide();
+      $('.usuario_logado_hide').show(); 
+      $('.usuario_logado_alerta_email_nao_confirmado').hide();
+      $('.usuario_logado_nome').html('');
+      $('.usuario_logado_email').html('');
+      $('.usuario_logado_avatar').attr('src', '');
+      $('.usuario_logado_avatar').attr('alt', '');
+      $('.usuario_logado_avatar').attr('title', '');
+      $('.usuario_logado_data_nascimento').html('');
+      $('.usuario_logado_idade').html('');
+    }else{ 
+      $('.usuario_logado_show').show();
+      $('.usuario_logado_hide').hide();    
+      if(($.Solves.getPerfilLogado().email_confirmado==undefined || !$.Solves.isTrue($.Solves.getPerfilLogado().email_confirmado))){  
+        if($('.usuario_logado_alerta_email_nao_confirmado').length>0){
+          $('.usuario_logado_alerta_email_nao_confirmado').show();
+         // this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
+        }
       }
-      this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
+      $('.usuario_logado_nome').html($.Solves.getPerfilLogado().nome);
+      $('.usuario_logado_email').html($.Solves.getPerfilLogado().email);
+      $('.usuario_logado_avatar').attr('src', $.Solves.getPerfilLogado().avatar);
+      $('.usuario_logado_avatar').attr('alt', $.Solves.getPerfilLogado().nome);
+      $('.usuario_logado_avatar').attr('title', $.Solves.getPerfilLogado().nome);
+      $('.usuario_logado_data_nascimento').html($.Solves.getPerfilLogado().data_nascimento_label);
+      $('.usuario_logado_idade').html($.Solves.getPerfilLogado().idade);
     }
-    $('.usuario_logado_nome').html(getPerfilLogado().nome);
-    $('.usuario_logado_email').html(getPerfilLogado().email);
-    $('.usuario_logado_avatar').attr('src', getPerfilLogado().avatar);
-    $('.usuario_logado_avatar').attr('alt', getPerfilLogado().nome);
-    $('.usuario_logado_avatar').attr('title', getPerfilLogado().nome);
-    $('.usuario_logado_data_nascimento').html(getPerfilLogado().data_nascimento_label);
-    $('.usuario_logado_idade').html(getPerfilLogado().idade);
   }
   this.addNotificationToTopPanel = function(linkUrl, imgUrl, title, txt, dataHora){
      $('#notifications_list').prepend('<a href="'+($.Solves.isNotEmpty(linkUrl) ? linkUrl : '#')+'" class="media-list-link read"><div class="media pd-x-20 pd-y-15">'+

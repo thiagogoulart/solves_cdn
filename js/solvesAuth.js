@@ -135,17 +135,17 @@ function SolvesAuth() {
         }
         $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
         $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
-        var user = {};
-        if($.Solves.isLogado()){ 
+        var perfil = {};
+        if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData())){ 
           if($.SolvesStorage.getStorageAuthUserData().credential.providerId==firebase.auth.FacebookAuthProvider.PROVIDER_ID){
-            user.data_nascimento = null;
-            user.email_confirmado = true;
-            user.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
-            user.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
-            user.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture;
+            perfil.data_nascimento = null;
+            perfil.email_confirmado = true;
+            perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
+            perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
+            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture;
           }
         }
-        $.Solves.atualizaPerfilLogado(user);
+        $.Solves.atualizaPerfilLogado(perfil);
       }, function(error) {
         console.log(error);
       });
@@ -164,7 +164,8 @@ function SolvesAuth() {
   };
   this.logoff = function(){
     firebase.auth().signOut().then(function() {
-      // Sign-out successful.
+        $.Solves.logoff();
+        $.Solves.atualizaPerfilLogado(null);
     }).catch(function(error) {
       console.log(error);
     });
