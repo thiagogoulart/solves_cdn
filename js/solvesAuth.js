@@ -54,7 +54,11 @@ function SolvesAuth() {
     return {
         signInSuccessWithAuthResult: function(authResult, redirectUrl) {
           $.SolvesStorage.setStorageAuthUserData(authResult);
-          if (authSuccessFunc && (typeof authSuccessFunc == "function")) {authSuccessFunc(authResult);}
+        if (authSuccessFunc && (typeof authSuccessFunc == "function")) {
+          console.log('authSuccessFunc');
+          console.log($.SolvesStorage.getStorageAuthUserData());
+          authSuccessFunc(authResult);
+        }
           return this.firebaseRedirectOnSuccess;
         },
         uiShown: function() {
@@ -146,6 +150,7 @@ function SolvesAuth() {
           }
         }
         $.Solves.atualizaPerfilLogado(perfil);
+
       }, function(error) {
         console.log(error);
       });

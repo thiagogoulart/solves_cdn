@@ -138,7 +138,7 @@ function SolvesUi() {
   }
   this.closeModalSmall = function(){
       $('#modalSmall').modal('hide');
-      clearModalSmall();
+      this.clearModalSmall();
   }
   this.abrePaginaInicial = function(){
     if(isLogado()){

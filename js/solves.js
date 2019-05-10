@@ -51,16 +51,13 @@ function Solves() {
     this.icon = p_icon;
   }
   this.setFireBaseConfig = function(config){
-        console.log('setFireBaseConfig');
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
       && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
       this.fireBaseConfig = config;
       if (!firebase || !firebase.apps.length) {
-        console.log('setFireBaseConfig init');
         // Initialize Firebase      
         this.fireBaseInitialized = true;
         this.fireBaseApp = firebase.initializeApp(this.fireBaseConfig);
-        console.log(this.fireBaseApp);
       }
     }
   }
@@ -407,17 +404,38 @@ function Solves() {
     formData.append(this.PARAM_NAME_DADOS, this.getJsonData(dados));
     return formData;
   }
+  this.encondeUrlParam = function(p){
+    p = encodeURI(p);
+    p = p.replaceAll('&','%26');
+    return p;
+  };
   this.getTokenUrlParam = function(){
       if(this.isLogado()){
         var pluginStorage = this.getSolvesPlugin('SolvesStorage');
         if(pluginStorage!=null){
+          var url = '';
+          var hasParam=false;
           var token = pluginStorage.getStorageAuthToken();
           var userData = JSON.stringify(pluginStorage.getStorageAuthUserData());
           var usuario = JSON.stringify(pluginStorage.getStorageAuthUsuario());
           var perfil = JSON.stringify(pluginStorage.getStorageAuthPerfil());
-          return this.PARAM_NAME_TOKEN+'='+token+'&'+this.PARAM_NAME_USERDATA+'='+userData
-            +'&'+this.PARAM_NAME_USUARIO+'='+usuario
-            +'&'+this.PARAM_NAME_PERFIL+'='+perfil;
+          if(this.isNotEmpty(token)){
+            url+=this.PARAM_NAME_TOKEN+'='+token;
+            hasParam = true;
+          }
+          if(this.isNotEmpty(userData)){
+            url+=(hasParam?'&':'')+this.PARAM_NAME_USERDATA+'='+this.encondeUrlParam(userData);
+            hasParam = true;
+          }
+          if(this.isNotEmpty(usuario)){
+            url+=(hasParam?'&':'')+this.PARAM_NAME_USUARIO+'='+this.encondeUrlParam(usuario);
+            hasParam = true;
+          }
+          if(this.isNotEmpty(perfil)){
+            url+=(hasParam?'&':'')+this.PARAM_NAME_PERFIL+'='+this.encondeUrlParam(perfil);
+            hasParam = true;
+          }
+          return url;
         }else{
           console.log('logoff sem SolvesStorage.');
         }
@@ -460,7 +478,7 @@ function Solves() {
   this.isLogado = function(){
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
-      return (this.isNotEmpty(pluginStorage.getStorageAuthUsuario()) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil()) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil().email) && this.isNotEmpty(pluginStorage.getStorageAuthPerfil().nome));
+      return (this.isNotEmpty(pluginStorage.getStorageAuthUserData()));
     }else{
       console.log('logoff sem SolvesStorage.');
     }
