@@ -289,6 +289,27 @@ function SolvesUi() {
     $('.field-moeda').maskMoney({symbol:"R$",decimal:",",thousands:"."});
     $('.field-euro').maskMoney({symbol:"Euro",decimal:",",thousands:" "}); 
   }
+  this.getHtmlShareButtons = function(label, preText, titulo, completeUrl, img){
+    var linkMsg = ($.Solves.isNotEmpty(preText)?preText : ('Olha%20o%20que%20eu%20vi%20no%20site%20'+$.Solves.siteTitulo+':%20'))+titulo;
+    var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
+    return '<div class="share_social_box row"><div class="col-sm-12">'+
+            '<span class="share_social_box_title">'+($.Solves.isNotEmpty(label)?label:'Compartilhar: ')+'</span></div><div class="col-sm-12">'+
+        '<a href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
+            '<i class="fab fa-lg fa-whatsapp"></i>'+
+        '</a>'+
+        '<a href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
+            '<i class="fab fa-lg fa-facebook"></i>'+
+        '</a>'+
+        '<a href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
+            '<i class="fab fa-lg fa-twitter"></i>'+
+        '</a>'+
+        '<a href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
+            '<i class="fab fa-lg fa-pinterest"></i>'+
+        '<a href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
+            '<i class="fab fa-lg fa-linkedin"></i>'+
+        '</a>'+
+        '</div></div>';
+}
   this.getAvatarImgHtml = function(avatar, title, tipo){
     var addClass = ($.Solves.isNotEmpty(tipo) ? 'avatar_img_'+tipo:''); 
     return getImgHtml(avatar, title, 'avatar_img '+addClass); 
@@ -312,6 +333,24 @@ function SolvesUi() {
               '</div><!-- media-body -->'+
             '</a><!-- list-group-item -->';
   }
+  this.ajustarMetaTags = function(completeUrl, titulo, descr, img){
+    $('link[rel="canonical"]').attr('href', completeUrl);
+    $('meta[property="og:url"]').attr('content', completeUrl);
+    if($.Solves.isNotEmpty(titulo) && titulo!=$.Solves.siteTitulo){ 
+      $('title').html($.Solves.siteTitulo+' - '+titulo);
+      $('meta[name="twitter:title"]').attr('content', $.Solves.siteTitulo+' - '+titulo);
+      $('meta[property="og:title"]').attr('content', $.Solves.siteTitulo+' - '+titulo);
+    }
+    if($.Solves.isNotEmpty(img)){
+      $('meta[property="og:image"]').attr('content', img);
+      $('meta[name="twitter:image"]').attr('content', img);
+    }
+    if($.Solves.isNotEmpty(descr)){
+      $('meta[name="description"]').attr('content', descr+$('meta[name=description]').attr('content'));
+      $('meta[name="twitter:description"]').attr('content', descr+$('meta[name=description]').attr('content'));
+      $('meta[property="og:description"]').attr('content', descr+$('meta[name=description]').attr('content'));
+    }
+  };
 }
 $.SolvesUi = new SolvesUi();
 $.SolvesUi.init();

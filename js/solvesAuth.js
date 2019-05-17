@@ -158,7 +158,7 @@ function SolvesAuth() {
   }
   this.showAuthScreen = function(){
     // Initialize the FirebaseUI Widget using Firebase.
-    this.fireBaseUiAuthObject = new firebaseui.auth.AuthUI(firebase.auth());
+    this.fireBaseUiAuthObject = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
     if($.Solves.isNotEmpty(this.fireBaseAuthDivId)){
       if($('#'+this.fireBaseAuthDivId).length>0){
         this.fireBaseUiAuthObject.start('#'+this.fireBaseAuthDivId, this.getFireBaseUiConfig());
