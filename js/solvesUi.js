@@ -318,8 +318,16 @@ function SolvesUi() {
     var addClass = ($.Solves.isNotEmpty(clsses) ? ' '+clsses:'');  
     return '<img src="'+src+'" alt="'+title+'" class="img-responsive'+addClass+'">';
   }
-  this.getHtmlListItem = function(link, avatar, altTitle, titulo, avaliacao, summary, aditionalClasses){
-    return '<a href="'+link+'" class="list-group-item list-group-item-action media '+($.Solves.isNotEmpty(aditionalClasses)?aditionalClasses:'')+'">'+
+  this.getHtmlListItem = function(link, avatar, altTitle, titulo, avaliacao, summary, aditionalClasses, linkAttrs){
+    var attrs = '';
+    if ($.Solves.isNotEmpty(linkAttrs)){
+      for(var i in linkAttrs){
+        var linkAttr = linkAttrs[i];
+        attrs += ' '+i+'="'+linkAttr+'"';
+      }
+    }
+    return '<a '+($.Solves.isNotEmpty(link) ?'href="'+link+'"':'onclick="return false;"')+ 
+      ' class="list-group-item list-group-item-action media '+($.Solves.isNotEmpty(aditionalClasses)?aditionalClasses:'')+'" '+attrs+'>'+
               this.getAvatarImgHtml(avatar, altTitle, null)+
               '<div class="media-body">'+
                 '<div class="msg-top">'+
