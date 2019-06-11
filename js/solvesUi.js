@@ -289,24 +289,30 @@ function SolvesUi() {
     $('.field-moeda').maskMoney({symbol:"R$",decimal:",",thousands:"."});
     $('.field-euro').maskMoney({symbol:"Euro",decimal:",",thousands:" "}); 
   }
-  this.getHtmlShareButtons = function(label, preText, titulo, completeUrl, img){
+  this.getHtmlShareButtons = function(label, preText, titulo, completeUrl, img, faClass, linkClass){
+    if (!$.Solves.isNotEmpty(faClass)){
+      faClass = 'fa-2x';
+    }
+    if (!$.Solves.isNotEmpty(linkClass)){
+      linkClass = 'pr-3';
+    }
     var linkMsg = ($.Solves.isNotEmpty(preText)?preText : ('Olha%20o%20que%20eu%20vi%20no%20site%20'+$.Solves.siteTitulo+':%20'))+titulo;
     var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
     return '<div class="share_social_box row"><div class="col-sm-12">'+
             '<span class="share_social_box_title">'+($.Solves.isNotEmpty(label)?label:'Compartilhar: ')+'</span></div><div class="col-sm-12">'+
-        '<a href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
-            '<i class="fab fa-lg fa-whatsapp"></i>'+
+        '<a class="'+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
+            '<i class="fab '+faClass+' fa-whatsapp"></i>'+
         '</a>'+
-        '<a href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
-            '<i class="fab fa-lg fa-facebook"></i>'+
+        '<a class="'+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
+            '<i class="fab '+faClass+' fa-facebook"></i>'+
         '</a>'+
-        '<a href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
-            '<i class="fab fa-lg fa-twitter"></i>'+
+        '<a class="'+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
+            '<i class="fab '+faClass+' fa-twitter"></i>'+
         '</a>'+
-        '<a href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
-            '<i class="fab fa-lg fa-pinterest"></i>'+
-        '<a href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
-            '<i class="fab fa-lg fa-linkedin"></i>'+
+        '<a class="'+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
+            '<i class="fab '+faClass+' fa-pinterest"></i>'+
+        '<a class="'+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
+            '<i class="fab '+faClass+' fa-linkedin"></i>'+
         '</a>'+
         '</div></div>';
 }
