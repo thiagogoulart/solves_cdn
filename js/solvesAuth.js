@@ -1,6 +1,6 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
-* 11/04/2019.)
+*Criado em 11/04/2019. Última alteração em 18/06/2019.
 **/
 function SolvesAuth() {
   this.solvesPluginName = 'SolvesAuth';
@@ -54,11 +54,11 @@ function SolvesAuth() {
     return {
         signInSuccessWithAuthResult: function(authResult, redirectUrl) {
           $.SolvesStorage.setStorageAuthUserData(authResult);
-        if (authSuccessFunc && (typeof authSuccessFunc == "function")) {
-          console.log('authSuccessFunc');
-          console.log($.SolvesStorage.getStorageAuthUserData());
-          authSuccessFunc(authResult);
-        }
+          if (authSuccessFunc && (typeof authSuccessFunc == "function")) {
+            console.log('authSuccessFunc');
+            console.log($.SolvesStorage.getStorageAuthUserData());
+            authSuccessFunc(authResult);
+          }
           return this.firebaseRedirectOnSuccess;
         },
         uiShown: function() {
@@ -146,7 +146,7 @@ function SolvesAuth() {
             perfil.email_confirmado = true;
             perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
             perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
-            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture;
+            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url;
           }
         }
         $.Solves.atualizaPerfilLogado(perfil);
