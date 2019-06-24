@@ -147,6 +147,18 @@ function SolvesAuth() {
             perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
             perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
             perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url;
+          }else if($.SolvesStorage.getStorageAuthUserData().credential.providerId==firebase.auth.GoogleAuthProvider.PROVIDER_ID){
+            perfil.data_nascimento = null;
+            perfil.email_confirmado = true;
+            perfil.email = $.SolvesStorage.getStorageAuthUserData().user.email;
+            perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
+            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().user.photoURL;
+          }else{ 
+            perfil.data_nascimento = null;
+            perfil.email_confirmado = false;
+            perfil.email = $.SolvesStorage.getStorageAuthUserData().user.email;
+            perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
+            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().user.photoURL;
           }
         }
         $.Solves.atualizaPerfilLogado(perfil);
