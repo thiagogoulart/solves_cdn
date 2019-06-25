@@ -141,23 +141,28 @@ function SolvesAuth() {
         $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
         var perfil = {};
         if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData())){ 
-          if($.SolvesStorage.getStorageAuthUserData().credential.providerId==firebase.auth.FacebookAuthProvider.PROVIDER_ID){
-            perfil.data_nascimento = null;
-            perfil.email_confirmado = true;
-            perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
-            perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
+          perfil.data_nascimento = null;
+          perfil.email_confirmado = true;
+          perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
+          perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
+          if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile) &&
+          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture) &&
+          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data) && 
+          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url) && 
+           typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url =='string'){
             perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url;
-          }else if($.SolvesStorage.getStorageAuthUserData().credential.providerId==firebase.auth.GoogleAuthProvider.PROVIDER_ID){
-            perfil.data_nascimento = null;
-            perfil.email_confirmado = true;
+          }
+          if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture) && typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture =='string'){
+            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture;
+          }
+          
+          if(!$.Solves.isNotEmpty(perfil.email)){
             perfil.email = $.SolvesStorage.getStorageAuthUserData().user.email;
+          }
+          if(!$.Solves.isNotEmpty(perfil.nome)){
             perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
-            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().user.photoURL;
-          }else{ 
-            perfil.data_nascimento = null;
-            perfil.email_confirmado = false;
-            perfil.email = $.SolvesStorage.getStorageAuthUserData().user.email;
-            perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
+          }
+          if(!$.Solves.isNotEmpty(perfil.avatar)){
             perfil.avatar = $.SolvesStorage.getStorageAuthUserData().user.photoURL;
           }
         }
