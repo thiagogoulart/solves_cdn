@@ -203,6 +203,10 @@ function SolvesAuth() {
       window.location.assign(this.urlTermosUso);
     }
   }
+  this.doLogin = function(obj, token){
+    $.Solves.atualizaPerfilLogado(obj);
+    $.SolvesStorage.setStorageAuthToken(token);
+  };
 }
 $.SolvesAuth = new SolvesAuth();
 $.SolvesAuth.init();
