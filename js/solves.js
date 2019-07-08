@@ -410,7 +410,7 @@ function Solves() {
     return p;
   };
   this.getTokenUrlParam = function(){
-      if(this.isLogado()){
+      if(this.isNotEmpty($.SolvesStorage.getStorageAuthToken()) && this.isNotEmpty($.SolvesStorage.getStorageAuthUserData()) ){
         var pluginStorage = this.getSolvesPlugin('SolvesStorage');
         if(pluginStorage!=null){
           var url = '';
@@ -517,9 +517,15 @@ function Solves() {
       this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
       this.PERFIL_LOGADO.email = obj.email;
       this.PERFIL_LOGADO.nome = obj.nome;
-      this.PERFIL_LOGADO.avatar = obj.avatar;
+      this.PERFIL_LOGADO.avatar = this.normalizeImgUrl(obj.avatar);
       if(this.PERFIL_LOGADO.data_nascimento!=null){
         this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);  
+      }
+      if(obj.fone1!=null){
+        this.PERFIL_LOGADO.fone1 = obj.fone1;
+      }
+      if(obj.fone2!=null){
+        this.PERFIL_LOGADO.fone2 = obj.fone2;
       }
     }
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
@@ -546,6 +552,9 @@ function Solves() {
   this.refreshOffline = function(lastPage){
     window.location.href = lastPage;
   }
+  this.normalizeImgUrl = function(imgUrl){
+    return (this.isNotEmpty(imgUrl) ? ((imgUrl.slice(0, 5) === 'data:')?imgUrl.replace(/ /g, '+'):imgUrl) : '');
+  };
 }
 $.Solves = new Solves();
 

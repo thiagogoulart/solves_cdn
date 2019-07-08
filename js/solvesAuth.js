@@ -150,10 +150,10 @@ function SolvesAuth() {
           $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data) && 
           $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url) && 
            typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url =='string'){
-            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url;
+            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url);
           }
           if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture) && typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture =='string'){
-            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture;
+            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture);
           }
           
           if(!$.Solves.isNotEmpty(perfil.email)){
@@ -163,7 +163,7 @@ function SolvesAuth() {
             perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
           }
           if(!$.Solves.isNotEmpty(perfil.avatar)){
-            perfil.avatar = $.SolvesStorage.getStorageAuthUserData().user.photoURL;
+            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().user.photoURL);
           }
         }
         $.Solves.atualizaPerfilLogado(perfil);
@@ -203,9 +203,10 @@ function SolvesAuth() {
       window.location.assign(this.urlTermosUso);
     }
   }
-  this.doLogin = function(obj, token){
+  this.doLogin = function(obj, tokenData){
     $.Solves.atualizaPerfilLogado(obj);
-    $.SolvesStorage.setStorageAuthToken(token);
+    $.SolvesStorage.setStorageAuthUserData(tokenData['userData']);
+    $.SolvesStorage.setStorageAuthToken(tokenData['token']);
   };
 }
 $.SolvesAuth = new SolvesAuth();
