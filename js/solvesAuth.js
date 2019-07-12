@@ -139,8 +139,8 @@ function SolvesAuth() {
         }
         $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
         $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
-        var perfil = {};
-        if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData())){ 
+        if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData()) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile)){ 
+          var perfil = {};
           perfil.data_nascimento = null;
           perfil.email_confirmado = true;
           perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
@@ -165,9 +165,8 @@ function SolvesAuth() {
           if(!$.Solves.isNotEmpty(perfil.avatar)){
             perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().user.photoURL);
           }
+          $.Solves.atualizaPerfilLogado(perfil);
         }
-        $.Solves.atualizaPerfilLogado(perfil);
-
       }, function(error) {
         console.log(error);
       });
@@ -191,6 +190,9 @@ function SolvesAuth() {
     }).catch(function(error) {
       console.log(error);
     });
+  
+    $.Solves.logoff();
+    $.Solves.atualizaPerfilLogado(null);
     return true;
   };
   this.openUrlTermosPrivacidade = function(){

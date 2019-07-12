@@ -300,18 +300,18 @@ function SolvesUi() {
     var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
     return '<div class="share_social_box row"><div class="col-sm-12">'+
             '<span class="share_social_box_title">'+($.Solves.isNotEmpty(label)?label:'Compartilhar: ')+'</span></div><div class="col-sm-12">'+
-        '<a class="'+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
+        '<a class="share_social_whats '+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
             '<i class="fab '+faClass+' fa-whatsapp"></i>'+
         '</a>'+
-        '<a class="'+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
+        '<a class="share_social_facebook '+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
             '<i class="fab '+faClass+' fa-facebook"></i>'+
         '</a>'+
-        '<a class="'+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
+        '<a class="share_social_twitter '+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
             '<i class="fab '+faClass+' fa-twitter"></i>'+
         '</a>'+
-        '<a class="'+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
+        '<a class="share_social_pinterest '+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
             '<i class="fab '+faClass+' fa-pinterest"></i>'+
-        '<a class="'+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
+        '<a class="share_social_linkedin '+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
             '<i class="fab '+faClass+' fa-linkedin"></i>'+
         '</a>'+
         '</div></div>';
