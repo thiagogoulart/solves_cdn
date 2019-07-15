@@ -275,6 +275,16 @@ function SolvesUi() {
         ($.Solves.isNotEmpty(dataHora) ? '<span class="tx-12">'+dataHora+'</span>' : '')+
         '</div></div></a>');
   }
+  this.setValueOnSelect2 = function(elmId, id, value){
+    if ($('#'+elmId).find("option[value='" + id + "']").length) {
+        $('#'+elmId).val(id).trigger('change');
+    } else { 
+        // Create a DOM Option and pre-select by default
+        var newOption = new Option(value, id, true, true);
+        // Append it to the select
+        $('#'+elmId).append(newOption).trigger('change');
+    } 
+  }
   this.doMasks = function(){
     $('.field-date').mask('99/99/9999');
     $('.field-data').mask('99/99/9999').val($.Solves.getDataAtualFormatada());

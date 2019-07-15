@@ -1,13 +1,15 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
+*last version of 15/07/2019
 **/
 function Solves() {
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 2;
+  this.version = '1.1';
+  this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
-  this.siteShortName = 'Solves Short Site Name';
+  this.siteShortName = 'solves_short_name';
   this.icon =  this.siteUrl+'...';
   this.solvesPlugins = [];
   this.app = false;
@@ -49,6 +51,10 @@ function Solves() {
     this.siteTitulo = p_siteTitulo;
     this.siteShortName = p_siteShortName;
     this.icon = p_icon;
+    for(var keyPlugin in this.solvesPlugins){
+      var plugin = this.solvesPlugins[keyPlugin];
+      if (plugin.afterSolvesInit && (typeof plugin.afterSolvesInit == "function")) {plugin.afterSolvesInit();}
+    }
   }
   this.setFireBaseConfig = function(config){
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 

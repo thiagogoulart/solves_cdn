@@ -4,8 +4,9 @@
 **/
 function SolvesStorage() {
   this.solvesPluginName = 'SolvesStorage';
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 2;
+  this.version = '1.1';
+  this.debug = false;
   /*DEFAULT KEYS*/
   this.STORAGE_KEY_PERFIL = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_PERFIL;
   this.STORAGE_KEY_USUARIO = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
@@ -16,6 +17,15 @@ function SolvesStorage() {
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesStorage);
+  };
+  this.afterSolvesInit = function(){
+    this.debug = $.Solves.debug;
+    this.STORAGE_KEY_PERFIL = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_PERFIL);
+    this.STORAGE_KEY_USUARIO = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO);
+    this.STORAGE_KEY_USERDATA = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USERDATA);
+    this.STORAGE_KEY_TOKEN = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_TOKEN);
+    this.STORAGE_KEY_ADDRESS_DATA = $.Solves.PARAM_NAME_ADDRESS_DATA;
+    this.STORAGE_KEY_GEO_DATA = $.Solves.PARAM_NAME_GEO_DATA;
   };
   this.destroy = function(){
     this.clearAuthData();
@@ -50,10 +60,10 @@ function SolvesStorage() {
     return this.setCache(this.STORAGE_KEY_USERDATA, p, true);
   }
   this.getStorageAuthToken = function(){
-    return this.getCache(this.STORAGE_KEY_TOKEN);
+    return this.getCache(this.STORAGE_KEY_TOKEN, false);
   }
   this.setStorageAuthToken = function(p){
-    return this.setCache(this.STORAGE_KEY_TOKEN, p);
+    return this.setCache(this.STORAGE_KEY_TOKEN, p, false);
   }
   this.getStorageAddressData = function(){
     return this.getCache(this.STORAGE_KEY_ADDRESS_DATA);
@@ -110,15 +120,17 @@ function SolvesStorage() {
     }
     return null;
   }
-  this.setCache = function(key, value,isJson){
+  this.setCache = function(key, value, isJson){
+    if(this.debug){console.log('SolvesStorage. setCache['+key+'] actualValue['+window.localStorage[key]+'] newValue['+value+']');}
     if($.Solves.isTrue(isJson) && value!==undefined && value!=null){value = $.Solves.escapeTextField(JSON.stringify(value));}
     window.localStorage[key] = value;
   }
   this.clearCache = function(key){
+    if(this.debug){console.log('SolvesStorage. clearCache['+key+'] actualValue['+window.localStorage[key]+']');}
     window.localStorage[key] = null;
   }
   this.setEmptyCache = function(key){
-    window.localStorage[key] = null;
+    this.clearCache(key);
   }
 }
 $.SolvesStorage = new SolvesStorage();

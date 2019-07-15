@@ -1,11 +1,12 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
-*Criado em 11/04/2019. Última alteração em 18/06/2019.
+*Criado em 11/04/2019. Última alteração em 15/07/2019.
 **/
 function SolvesAuth() {
   this.solvesPluginName = 'SolvesAuth';
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 2;
+  this.version = '1.1';
+  this.debug = false;
   this.urlLogadoSucesso = null;
   this.urlTermosUso = null;
   this.urlTermosPrivacidade = null;
@@ -28,6 +29,9 @@ function SolvesAuth() {
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesAuth);
+  };
+  this.afterSolvesInit = function(){
+    this.debug = $.Solves.debug;
   };
   this.destroy = function(){
     this.fireBaseAuthUsedTypes = [];
@@ -137,9 +141,11 @@ function SolvesAuth() {
           this.fireBaseAuthUser=null;
           this.fireBaseAuthUserAccessToken=null;
         }
-        $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
-        $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
         if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData()) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile)){ 
+          
+          $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
+          $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
+
           var perfil = {};
           perfil.data_nascimento = null;
           perfil.email_confirmado = true;
