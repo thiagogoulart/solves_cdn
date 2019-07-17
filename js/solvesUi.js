@@ -4,14 +4,18 @@
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 2;
+  this.version = '1.1';
+  this.debug = false;
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
     //TODO validações de dependencias
     $('.usuario_logado_show').hide();
   };
+  this.afterSolvesInit = function(){
+    this.debug = $.Solves.debug;
+  }
   this.destroy = function(){
     this.clearData();
   };
@@ -370,9 +374,10 @@ function SolvesUi() {
       $('meta[name="twitter:image"]').attr('content', img);
     }
     if($.Solves.isNotEmpty(descr)){
-      $('meta[name="description"]').attr('content', descr+$('meta[name=description]').attr('content'));
-      $('meta[name="twitter:description"]').attr('content', descr+$('meta[name=description]').attr('content'));
-      $('meta[property="og:description"]').attr('content', descr+$('meta[name=description]').attr('content'));
+      descr =  titulo+'. '+descr+' '+$.Solves.siteTitulo+'. '+$('meta[name=description]').attr('content');
+      $('meta[name="description"]').attr('content', descr);
+      $('meta[name="twitter:description"]').attr('content', descr);
+      $('meta[property="og:description"]').attr('content', descr);
     }
   };
 }

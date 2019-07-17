@@ -20,6 +20,9 @@ function Solves() {
   this.PARAM_NAME_USERDATA = 'userData';
   this.PARAM_NAME_PERFIL = 'perfil';
   this.PARAM_NAME_USUARIO = 'usuario';
+  this.PARAM_NAME_FIREBASE_AUTH_USER = 'firebaseauthuser';
+  this.PARAM_NAME_FIREBASE_AUTH_TOKEN = 'firebaseauthtoken';
+  this.PARAM_NAME_FIREBASE_AUTH_RESULT = 'firebaseauthresult';
   this.PARAM_NAME_ADDRESS_DATA = 'addressData';
   this.PARAM_NAME_GEO_DATA = 'geoData';
   /* AUTH OBJECT */
@@ -559,8 +562,37 @@ function Solves() {
     window.location.href = lastPage;
   }
   this.normalizeImgUrl = function(imgUrl){
-    return (this.isNotEmpty(imgUrl) ? ((imgUrl.slice(0, 5) === 'data:')?imgUrl.replace(/ /g, '+'):imgUrl) : '');
+    return (this.isNotEmpty(imgUrl) ? ((imgUrl.slice!==undefined && typeof imgUrl.slice=="function" && imgUrl.slice(0, 5) === 'data:')?imgUrl.replace(/ /g, '+'):imgUrl) : '');
   };
+  this.base64ToBlob = function(base64, mime) {
+      mime = mime || '';
+      var sliceSize = 1024;
+      var byteChars = window.atob(base64);
+      var byteArrays = [];
+
+      for (var offset = 0, len = byteChars.length; offset < len; offset += sliceSize) {
+          var slice = byteChars.slice(offset, offset + sliceSize);
+
+          var byteNumbers = new Array(slice.length);
+          for (var i = 0; i < slice.length; i++) {
+              byteNumbers[i] = slice.charCodeAt(i);
+          }
+
+          var byteArray = new Uint8Array(byteNumbers);
+
+          byteArrays.push(byteArray);
+      }
+
+      return new Blob(byteArrays, {type: mime});
+  };
+  this.getImgSrcInBlob = function(imgElmId){
+    var image = $('#'+imgElmId).attr('src');
+    if($.Solves.isNotEmpty(image)){
+      var base64ImageContent = image.replace(/^data:image\/(png|jpg);base64,/, "");
+      return this.base64ToBlob(base64ImageContent, 'image/png'); 
+    }
+    return null;
+  }
 }
 $.Solves = new Solves();
 

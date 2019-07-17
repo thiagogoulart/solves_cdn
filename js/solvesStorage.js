@@ -12,6 +12,9 @@ function SolvesStorage() {
   this.STORAGE_KEY_USUARIO = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO;
   this.STORAGE_KEY_USERDATA = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USERDATA;
   this.STORAGE_KEY_TOKEN = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_TOKEN;
+  this.STORAGE_KEY_FIREBASE_AUTH_USER = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_USER;
+  this.STORAGE_KEY_FIREBASE_AUTH_TOKEN = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_TOKEN;
+  this.STORAGE_KEY_FIREBASE_AUTH_RESULT = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_RESULT;
   this.STORAGE_KEY_ADDRESS_DATA = $.Solves.PARAM_NAME_ADDRESS_DATA;
   this.STORAGE_KEY_GEO_DATA = $.Solves.PARAM_NAME_GEO_DATA;
 
@@ -24,6 +27,9 @@ function SolvesStorage() {
     this.STORAGE_KEY_USUARIO = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USUARIO);
     this.STORAGE_KEY_USERDATA = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_USERDATA);
     this.STORAGE_KEY_TOKEN = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_TOKEN);
+    this.STORAGE_KEY_FIREBASE_AUTH_USER = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_USER);
+    this.STORAGE_KEY_FIREBASE_AUTH_TOKEN = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_TOKEN);
+    this.STORAGE_KEY_FIREBASE_AUTH_RESULT = $.Solves.removeEspacos($.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_FIREBASE_AUTH_RESULT);
     this.STORAGE_KEY_ADDRESS_DATA = $.Solves.PARAM_NAME_ADDRESS_DATA;
     this.STORAGE_KEY_GEO_DATA = $.Solves.PARAM_NAME_GEO_DATA;
   };
@@ -36,6 +42,9 @@ function SolvesStorage() {
     this.setEmptyCache(this.STORAGE_KEY_USERDATA);
     this.setEmptyCache(this.STORAGE_KEY_TOKEN);
     this.setEmptyCache(this.STORAGE_KEY_PERFIL);
+    this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_USER);
+    this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN);
+    this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT);
   }
   this.clearGeoData = function(){
     this.clearCache(this.STORAGE_KEY_ADDRESS_DATA);
@@ -58,6 +67,24 @@ function SolvesStorage() {
   }
   this.setStorageAuthUserData = function(p){
     return this.setCache(this.STORAGE_KEY_USERDATA, p, true);
+  }
+  this.getStorageFireBaseAuthUser = function(){
+    return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_USER, true);
+  }
+  this.setStorageFireBaseAuthUser = function(p){
+    return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_USER, p, true);
+  }
+  this.getStorageFireBaseAuthToken = function(){
+    return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN, true);
+  }
+  this.setStorageFireBaseAuthToken = function(p){
+    return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN, p, true);
+  }
+  this.getStorageFireBaseAuthResult = function(){
+    return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT, true);
+  }
+  this.setStorageFireBaseAuthResult = function(p){
+    return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT, p, true);
   }
   this.getStorageAuthToken = function(){
     return this.getCache(this.STORAGE_KEY_TOKEN, false);

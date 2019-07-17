@@ -57,10 +57,10 @@ function SolvesAuth() {
   this.getCallbacks = function(authSuccessFunc, authErrorFunc){
     return {
         signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-          $.SolvesStorage.setStorageAuthUserData(authResult);
+          $.SolvesStorage.setStorageFireBaseAuthResult(authResult);
           if (authSuccessFunc && (typeof authSuccessFunc == "function")) {
             console.log('authSuccessFunc');
-            console.log($.SolvesStorage.getStorageAuthUserData());
+            console.log($.SolvesStorage.getStorageFireBaseAuthResult());
             authSuccessFunc(authResult);
           }
           return this.firebaseRedirectOnSuccess;
@@ -141,35 +141,33 @@ function SolvesAuth() {
           this.fireBaseAuthUser=null;
           this.fireBaseAuthUserAccessToken=null;
         }
-        if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData()) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo) && $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile)){ 
-          
-          $.SolvesStorage.setStorageAuthUsuario(this.fireBaseAuthUser);
-          $.SolvesStorage.setStorageAuthToken(this.fireBaseAuthUserAccessToken);
-
+        $.SolvesStorage.setStorageFireBaseAuthUser(this.fireBaseAuthUser);
+        $.SolvesStorage.setStorageFireBaseAuthToken(this.fireBaseAuthUserAccessToken);
+        if($.Solves.isNotEmpty(this.fireBaseAuthUser) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile)){           
           var perfil = {};
           perfil.data_nascimento = null;
           perfil.email_confirmado = true;
-          perfil.email = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.email;
-          perfil.nome = $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.name;
-          if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile) &&
-          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture) &&
-          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data) && 
-          $.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url) && 
-           typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url =='string'){
-            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.profile.picture.data.url);
+          perfil.email = this.fireBaseAuthUser.additionalUserInfo.profile.email;
+          perfil.nome = this.fireBaseAuthUser.additionalUserInfo.profile.name;
+          if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile) &&
+          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture) &&
+          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data) && 
+          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url) && 
+           typeof this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url =='string'){
+            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url);
           }
-          if($.Solves.isNotEmpty($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture) && typeof $.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture =='string'){
-            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().additionalUserInfo.picture);
+          if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.picture) && typeof this.fireBaseAuthUser.additionalUserInfo.picture =='string'){
+            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.picture);
           }
           
           if(!$.Solves.isNotEmpty(perfil.email)){
-            perfil.email = $.SolvesStorage.getStorageAuthUserData().user.email;
+            perfil.email = this.fireBaseAuthUser.user.email;
           }
           if(!$.Solves.isNotEmpty(perfil.nome)){
-            perfil.nome = $.SolvesStorage.getStorageAuthUserData().user.displayName;
+            perfil.nome = this.fireBaseAuthUser.user.displayName;
           }
           if(!$.Solves.isNotEmpty(perfil.avatar)){
-            perfil.avatar = $.Solves.normalizeImgUrl($.SolvesStorage.getStorageAuthUserData().user.photoURL);
+            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.user.photoURL);
           }
           $.Solves.atualizaPerfilLogado(perfil);
         }
