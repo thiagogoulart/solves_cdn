@@ -314,18 +314,18 @@ function SolvesUi() {
     var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
     return '<div class="share_social_box row"><div class="col-sm-12">'+
             '<span class="share_social_box_title">'+($.Solves.isNotEmpty(label)?label:'Compartilhar: ')+'</span></div><div class="col-sm-12">'+
-        '<a class="share_social_whats '+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
+        '<a rel="noopener" class="share_social_whats '+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
             '<i class="fab '+faClass+' fa-whatsapp"></i>'+
         '</a>'+
-        '<a class="share_social_facebook '+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
+        '<a rel="noopener" class="share_social_facebook '+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
             '<i class="fab '+faClass+' fa-facebook"></i>'+
         '</a>'+
-        '<a class="share_social_twitter '+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
+        '<a rel="noopener" class="share_social_twitter '+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
             '<i class="fab '+faClass+' fa-twitter"></i>'+
         '</a>'+
-        '<a class="share_social_pinterest '+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
+        '<a rel="noopener" class="share_social_pinterest '+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
             '<i class="fab '+faClass+' fa-pinterest"></i>'+
-        '<a class="share_social_linkedin '+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
+        '<a rel="noopener" class="share_social_linkedin '+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
             '<i class="fab '+faClass+' fa-linkedin"></i>'+
         '</a>'+
         '</div></div>';
