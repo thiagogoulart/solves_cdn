@@ -17,6 +17,21 @@ function SolvesUi() {
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
     //TODO validações de dependencias
     $('.usuario_logado_show').hide();
+    this.initPreloader();
+  };
+  this.initPreloader = function(){
+    $(window).on('load', function() {
+      setTimeout( function() {
+          jQuery("#preloader").delay(500).fadeOut(1000);
+          jQuery(".preload-logo").addClass('fadeOutLeft');
+          jQuery(".back-logo").addClass('fadeOutRight');
+          jQuery(".preload-gif").addClass('fadeOutUp');
+      }, 1200 );
+
+      setTimeout( function() {
+          jQuery("#preloader").hide();
+      }, 1800 );
+    });
   };
   this.afterSolvesInit = function(){
     this.debug = $.Solves.debug;
