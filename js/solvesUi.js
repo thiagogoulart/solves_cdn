@@ -4,9 +4,14 @@
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 2;
-  this.version = '1.1';
+  this.versionId = 3;
+  this.version = '1.2';
   this.debug = false;
+
+  this.facebook_useMessenger = false;
+  this.facebook_pageId;
+  this.facebook_themeColor;
+  this.facebook_initialMsg;
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
@@ -15,9 +20,36 @@ function SolvesUi() {
   };
   this.afterSolvesInit = function(){
     this.debug = $.Solves.debug;
+    this.initFacebookTools();
   }
   this.destroy = function(){
     this.clearData();
+  };
+  this.configFacebookMessenger = function(pgId, themeColor, initialMsg){
+    this.facebook_useMessenger = true;
+    this.facebook_pageId=pgId;
+    this.facebook_themeColor=themeColor;
+    this.facebook_initialMsg=initialMsg;
+  };
+  this.initFacebookTools = function(){
+    if(this.facebook_useMessenger && $.Solves.isNotEmpty(this.facebook_pageId)){ 
+      $('body').append('<div id="fb-root"></div><div class="fb-customerchat" attribution=setup_tool page_id="'+this.facebook_pageId+'" theme_color="'+this.facebook_themeColor+'" logged_in_greeting="'+this.facebook_initialMsg+'"   logged_out_greeting="'+this.facebook_initialMsg+'"></div>');
+
+      window.fbAsyncInit = function() {
+          FB.init({
+            xfbml            : true,
+            version          : 'v3.3'
+          });
+        };
+        (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = 'https://connect.facebook.net/pt_BR/sdk/xfbml.customerchat.js';
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+
+    }
   };
   this.showHideDiv = function(divId, show) {
     if($.Solves.isNotEmpty(divId) && $('#' + divId).length>0){
