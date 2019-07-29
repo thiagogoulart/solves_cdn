@@ -98,10 +98,10 @@ function Solves() {
       return (str.replace(/[^a-z0-9]/gi,''));
   }    
   this.isTrue = function(v){
-    return (v!==undefined && v!==null && (v==true || v=='true' || v==1 || v=="1" || v=='on'));
+    return (v!==undefined && v!==null && (v==true || v=='t' ||v=='v' || v=='true' || v==1 || v=="1" || v=='on' || v=='checked'));
   }
   this.isNotEmpty = function(val){
-    return val!==undefined && val!=null && val!="null" && val!="" && val!="undefined";
+    return val!==undefined && val!=null && val!="null" && val!="" && val!="undefined" && (""+val).trim()!="";
   }
   this.getAllUrlParams = function(url) {
 
