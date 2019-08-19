@@ -52,7 +52,7 @@ function SolvesNotifications() {
   this.getApplicationServerKey = function(){
     return this.applicationServerKey;
   };
-  this.setPublicVapidKey = function(key){
+  this.setFirebasePublicVapidKey = function(key){
     this.fireBasePublicVapidKey = key;
   }
   this.setFireBaseTokenDivId = function(elmId){
@@ -332,23 +332,22 @@ function SolvesNotifications() {
   this.push_sendSubscriptionToServer = function(subscription, p_method) {
     const key = subscription.getKey('p256dh');
     const token = subscription.getKey('auth');
-    const contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
-
-    return fetch(this.getServerUrlNotifications(), {
-      method: p_method,
-      body: JSON.stringify({
+    const contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];    
+    var dados = {
         endpoint: subscription.endpoint,
         publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
         authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
         contentEncoding: contentEncoding
-      })
-    }).then(() => subscription);
+      };  
+    var formData = $.Solves.getFormData(dados);
+    return $.Solves.doAjaxExternal(this.getServerUrlNotifications(), p_method, formData, 
+      function(data){return subscription}, 
+      function(data){console.log('Falha ao registrar subscription.'+data);}).then(() => subscription);
   };
   this.push_subscribe = function() {
     if(!$.Solves.isNotEmpty(this.getApplicationServerKey())){
       return;
     }
-    //changePushButtonState('computing');
     var _self = this;
     return this.checkNotificationPermission()
       .then(() => navigator.serviceWorker.ready)
@@ -359,8 +358,7 @@ function SolvesNotifications() {
         })
       )
       .then(subscription => {
-        // Subscription was successful
-        // create subscription on your server
+        // Subscription was successful // create subscription on your server
         return _self.push_sendSubscriptionToServer(subscription, 'POST');
       })
       .catch(e => {

@@ -165,13 +165,25 @@ function Solves() {
     return obj;
   }
   this.getAjaxParam = function(url, formData, successFunc, errorFunc){
+    return this.getAjaxParamRequest("POST",url, formData, successFunc, errorFunc);
+  };
+  this.getAjaxParamGet = function(url, formData, successFunc, errorFunc){
+    return this.getAjaxParamRequest("GET",url, formData, successFunc, errorFunc);
+  };
+  this.getAjaxParamPut = function(url, formData, successFunc, errorFunc){
+    return this.getAjaxParamRequest("PUT",url, formData, successFunc, errorFunc);
+  };
+  this.getAjaxParamDelete = function(url, formData, successFunc, errorFunc){
+    return this.getAjaxParamRequest("DELETE",url, formData, successFunc, errorFunc);
+  };
+  this.getAjaxParamRequest = function(reqMethod, url, formData, successFunc, errorFunc){
     var token = null;
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
       token = pluginStorage.getStorageAuthToken();
     }
     return {
-          type: "POST",
+          type: reqMethod,
           url: url,          
           processData:false,
           contentType: false,
@@ -206,22 +218,19 @@ function Solves() {
           data: data,
            success: function(data){ 
               successFunc(data);
-              console.log(data);
-              result = jQuery.parseJSON(data);
-              console.log(result);
-              this.loaded();
+              $.Solves.loaded();
             },
             error: function(data){ 
               errorFunc(data);
-              this.loaded();
+              $.Solves.loaded();
             }
       };
   }
   this.doAjax = function(url, formData, successFunc, errorFunc){
-    $.ajax(this.getAjaxParam(url, formData, successFunc, errorFunc));
+    return $.ajax(this.getAjaxParam(url, formData, successFunc, errorFunc));
   }
   this.doAjaxExternal = function(url, type, data, successFunc, errorFunc){
-    $.ajax(this.getAjaxExternalParam(url, type, data, successFunc, errorFunc));
+    return $.ajax(this.getAjaxExternalParam(url, type, data, successFunc, errorFunc));
   }
   this.doMaskForMoney = function(elmId){
       $('#'+elmId).maskMoney({symbol:"R$",decimal:",",thousands:"."});
