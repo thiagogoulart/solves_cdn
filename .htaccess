@@ -27,7 +27,8 @@ ErrorDocument 503     /503.html
  ##SetEnvIf Origin "http(s)?://(www\.)?(google.com|staging.google.com|development.google.com)quot; AccessControlAllowOrigin=$0
 ##Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
     Header always  set Access-Control-Allow-Origin "*"
-	Header always  set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"
+    Header always  set Access-Control-Allow-Credentials "true"
+	Header always  set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT, HEAD"
 	Header always  set Access-Control-Allow-Headers "Cache-Control, Pragma, Authorization, Key, Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, HTTP_X_USER_LOGIN, HTTP_X_AUTH_TOKEN, X_USER_LOGIN, X_AUTH_TOKEN, client-security-token"
     #(604800 segundos é 1 semana)
     Header always  set Cache-Control "max-age=604800, public"
