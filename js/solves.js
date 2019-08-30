@@ -1,11 +1,11 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 15/07/2019
+*last version of 30/08/2019
 **/
 function Solves() {
-  this.versionId = 2;
-  this.version = '1.1';
+  this.versionId = 3;
+  this.version = '1.2';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
@@ -531,19 +531,27 @@ function Solves() {
       if(this.getPerfilLogado()==null){
         this.PERFIL_LOGADO = {};
       }
-      this.PERFIL_LOGADO.data_nascimento = obj.data_nascimento;
-      this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
-      this.PERFIL_LOGADO.email = obj.email;
-      this.PERFIL_LOGADO.nome = obj.nome;
-      this.PERFIL_LOGADO.avatar = this.normalizeImgUrl(obj.avatar);
-      if(this.PERFIL_LOGADO.data_nascimento!=null){
-        this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);  
-      }
-      if(obj.fone1!=null){
-        this.PERFIL_LOGADO.fone1 = obj.fone1;
-      }
-      if(obj.fone2!=null){
-        this.PERFIL_LOGADO.fone2 = obj.fone2;
+      for(att in obj){
+        if(att=='data_nascimento'){
+          this.PERFIL_LOGADO.data_nascimento = obj.data_nascimento;
+          if(this.PERFIL_LOGADO.data_nascimento!=null){
+            this.PERFIL_LOGADO.idade = this.getIdade(this.PERFIL_LOGADO.data_nascimento);
+          }
+        }else if(att=='email_confirmado'){
+          this.PERFIL_LOGADO.email_confirmado = this.isTrue(obj.email_confirmado);
+        }else if(att=='email'){
+          this.PERFIL_LOGADO.email = obj.email;
+        }else if(att=='nome'){
+          this.PERFIL_LOGADO.nome = obj.nome;
+        }else if(att=='avatar'){
+          this.PERFIL_LOGADO.avatar = this.normalizeImgUrl(obj.avatar);
+        }else if(att=='fone1' && obj.fone1!=null){
+          this.PERFIL_LOGADO.fone1 = obj.fone1;
+        }else if(att=='fone2' &&obj.fone2!=null){
+          this.PERFIL_LOGADO.fone2 = obj.fone2;
+        }else{
+          this.PERFIL_LOGADO[att] = obj[att];
+        }
       }
     }
     var pluginStorage = this.getSolvesPlugin('SolvesStorage');

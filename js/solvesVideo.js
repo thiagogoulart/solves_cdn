@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 3;
+  this.version = '1.2';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -19,6 +19,8 @@ function SolvesVideo() {
   this.initialSecondsToWatch = 45;
   this.secondsToWatch = 45;
   this.timeoutContagemWatch = null;
+  /*Functions Callbacks*/
+  this.doAjaxVideoFindToWatch = function(){};
   /*Operations that must be logged in*/
   this.loggedInToWatchNextVideo = true;
   /*Element Identificators*/
@@ -33,6 +35,9 @@ function SolvesVideo() {
   this.containerWatchNextElmId = 'watch_next';
   /* PADRÃO DE NOMES DE PARAMETROS  */
   this.PARAM_NAME_VIDEOS = 'videos';
+  /* Texts */
+  this.txt_nomore_videos = '<h2>Aguarde novos vídeos!</h2>Parece que todos os vídeos foram assistidos conforme a quantidade de pontos.';
+
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesVideo);
@@ -152,20 +157,20 @@ this.createContainerPublicWatchVideo = function(id){
         '<div class="card-body pd-0 bd-color-gray-lighter">'+
           '<center>'+
             '<div class="row" style="padding: 8px; background: rgb(85, 85, 85); color: #FFFFFF;">'+
-              '<div class="col-lg-6 col-md-6 col-sm-12 col-xl-12" style="text-align:left;">'+
-                '<div><strong>CANAL: </strong><span id="watch_channel_desc_name"></span></div>'+
+              '<div class="col-12 col-sm-6" style="text-align:left;">'+
+                '<div><strong>CANAL: </strong><span id="'+this.containerWatchChannelDescNameElmId+'"></span></div>'+
               '</div>'+
-              '<div class="col-lg-6 col-md-6 col-sm-12 col-xl-12" style="text-align:right">'+
-                  '<div id="watch_channel_desc">'+this.getSubscribeButton($.Solves.objeto.channel_id_url, true)+'</div>'+
+              '<div class="col-12 col-sm-6" style="text-align:right;min-height: 50px;">'+
+                  '<div id="'+this.containerWatchChannelDescElmId+'">'+this.getSubscribeButton($.Solves.objeto.channel_id_url, true)+'</div>'+
               '</div>'+
             '</div>'+
-            '<div id="watch_player">CARREGANDO VÍDEO...<!-- VIDEO WILL BE EMBEDED HERE--></div>'+
-            '<div id="watch_player_desc" style="padding: 8px;background: rgb(192, 192, 192); color:#000000;">'+this.getPublicHtmlVideoDesc($.Solves.objeto)+'</div>'+
+            '<div id="'+this.containerWatchPlayerElmId+'">CARREGANDO VÍDEO...<!-- VIDEO WILL BE EMBEDED HERE--></div>'+
+            '<div id="'+this.containerWatchPlayerDescElmId+'" style="padding: 8px;background: rgb(192, 192, 192); color:#000000;">'+this.getPublicHtmlVideoDesc($.Solves.objeto)+'</div>'+
           '</center>'+
         '</div><!-- card-body -->              '+
       '</div><!-- card -->'+
     '</div>').focus();
-   this.onYouTubeIframeAPIReady('watch_player', $.Solves.objeto.url);
+   this.onYouTubeIframeAPIReady(this.containerWatchPlayerElmId, $.Solves.objeto.url);
 }
 this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unblockBtnId, counterContainerId){  
 //console.log('contagem_tempo:'+this.secondsToWatch);
@@ -233,19 +238,18 @@ this.getPlayerDuration = function(){
 }
 this.showNoVideoPlayer = function(idContainerVideo, idContainerVideoDesc, idContainerChannelDesc, idElmChannelName){
   this.blockNextButtonVideo('watch_next');
-  var msg = '<h2>Aguarde novos vídeos!</h2>Parece que todos os vídeos foram assistidos conforme a quantidade de pontos.';
   if( $('#'+idContainerVideo+'_msg').length>0){
     $('#'+idContainerVideo+'_msg').remove();
   }
   $('#'+idContainerVideo).hide();
   $('#'+idContainerChannelDesc).hide();
-  $( '<div id="'+idContainerVideo+'_msg" class="mg-b-50 mg-t-50">'+msg+'</div>').insertAfter( '#'+idContainerVideo );
+  $( '<div id="'+idContainerVideo+'_msg" class="mg-b-50 mg-t-50">'+this.txt_nomore_videos+'</div>').insertAfter( '#'+idContainerVideo );
 }
 this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
   if($('#'+idContainerVideo).length==0){
     return;
   }
-  $.Atual.videoDone = false;
+  this.videoDone = false;
   if(this.youtubePlayer==undefined || this.youtubePlayer==null){
     var w = 320;
     if(window.innerWidth!==undefined &&  window.innerWidth!=null){
@@ -254,21 +258,26 @@ this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
         if(w>711){w=711;}
     }
     var h = w * 56.25 /100;
+    var _self = this;
+
+   // YTConfig['host'] = 'https://www.youtube.com'; //$.Solves.siteUrl;
     this.youtubePlayer = new YT.Player(idContainerVideo, {
       height: h,
       width: w,
       videoId: videoYoutubeId,
       events: {
-        'onReady': onPlayerReady,
-        'onStateChange': onPlayerStateChange
+        'onReady': function(event){_self.onPlayerReady(event, this)},
+        'onStateChange': function(event){_self.onPlayerStateChange(event, this)}
       }
     });
   }else{
     this.youtubePlayer.loadVideoById({videoId:videoYoutubeId,startSeconds:0});
-    startContadorTempoMinimoVideo();
+    this.startContadorTempoMinimoVideo();
   }
 }
-this.onPlayerReady = function(event) {
+this.onPlayerReady = function(event, _self) {
+  console.log(event);
+  console.log(_self);
   event.target.playVideo();
   this.startContadorTempoMinimoVideo();
 }
@@ -278,7 +287,9 @@ this.startContadorTempoMinimoVideo = function(){
     this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId);
   }
 }
-this.onPlayerStateChange = function(event) {
+this.onPlayerStateChange = function(event, _self) {
+  console.log(event);
+  console.log(_self);
   if(this.youtubePlayer.getPlayerState()==YT.PlayerState.ENDED){
     this.watchNextVideo();
   }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.PLAYING){
@@ -288,7 +299,7 @@ this.onPlayerStateChange = function(event) {
      if(this.secondsToWatch==0){
       this.restartSecondsToWatch();
      }
-  }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.UNSTARTED && getPlayerDuration()==0){
+  }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.UNSTARTED && this.getPlayerDuration()==0){
     //console.log('noPlayerDuration');
      this.videoPause = false;
      this.secondsToWatch = 0;
@@ -325,16 +336,6 @@ this.getChannelIdYoutubeByUrl = function(url){
     url = url.replace("https://www.youtube.com/channel/", "");
    return url;
 }   
-this.getStatisticsYoutubeChannel = function(channel_url){
-  $.Solves.doAjaxExternal(URL_API_ESTATISTICAS + "id=" + channel_url, 'GET', {id:channel_url}, 
-    function(data){ 
-        result = jQuery.parseJSON(data);
-    }, 
-    function(data){
-
-    }
-  );
-}
 this.configSelect2Channels = function(dropParentId, p_selectFieldClass){
     this.selectFieldClass = p_selectFieldClass;
     if($('.'+this.selectFieldClass).length>0){ 

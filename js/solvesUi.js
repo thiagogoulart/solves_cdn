@@ -1,11 +1,12 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
+*last version of 30/08/2019
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 3;
-  this.version = '1.2';
+  this.versionId = 4;
+  this.version = '1.3';
   this.debug = false;
 
   this.facebook_useMessenger = false;
@@ -192,28 +193,28 @@ function SolvesUi() {
       this.clearModalSmall();
   }
   this.abrePaginaInicial = function(){
-    if(isLogado()){
+    if($.Solves.isLogado()){
        var urlAtual = window.location.href.replace($.Solves.siteUrl+'/','').replace($.Solves.siteUrl,'');
        if(urlAtual!=null && urlAtual.length>0 && urlAtual!='page' && urlAtual!='/'){
-          abrePagina(urlAtual);
+          this.abrePagina(urlAtual);
        }else{
-          abrePagina('home');
+          this.abrePagina('home');
         }
     }else{
-       abrePagina('index');
+       this.abrePagina('index');
     }
   }
   this.verificaLogadoAbreDireto = function(isApp, modulo){
-    if(isLogado()){
+    if($.Solves.isLogado()){
       window.location.href = '/home';
     }else{
-      doFxHiding('public-loading');
-      doFxShowing('public-wrapper');
+      this.doFxHiding('public-loading');
+      this.doFxShowing('public-wrapper');
     }
   }
   this.abrePagina = function(page){
-    loading(false);
-    if(!isLogado()){
+    this.loading(false);
+    if(!$.Solves.isLogado()){
     //   page = 'login';
     }
     if(page.endsWith('#')){
@@ -234,7 +235,7 @@ function SolvesUi() {
       $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
     }
     if($('#page_content_'+$.Solves.telaAtualId+'_form').length>0){
-      prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+      //prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
     }
     if($('#page_breadcrumb').length>0){
       $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/">Início</a>'+
@@ -246,13 +247,13 @@ function SolvesUi() {
     $.Solves.telaAtualTitulo = titulo;
     $.Solves.telaAtualSubtitulo = subtitulo;
     $('.page_content').hide();
-    if(isLogado()){ 
-      exibeTitulo();
-      doIndex(id_simples);  
+    if($.Solves.isLogado()){ 
+      this.exibeTitulo();
+      this.doIndex(id_simples);  
       $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/home">Início</a>'+
           '<span class="breadcrumb-item active">'+titulo+'</span>');
     }else{
-      logoff();
+      $.Solves.logoff();
     }
   }
   this.exibeTitulo = function(){
@@ -262,7 +263,7 @@ function SolvesUi() {
       if($.Solves.isNotEmpty($.Solves.telaAtualSubtitulo)){
         $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
       }
-    prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+    //prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
   }
   this.doNovo = function(id_simples){
     $('.page_content_'+id_simples).hide();
@@ -270,7 +271,7 @@ function SolvesUi() {
       $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/home">Início</a>'+
           '<a class="breadcrumb-item" href="/'+id_simples+'">'+$.Solves.telaAtualTitulo+'</a>'+
           '<span class="breadcrumb-item active">Novo</span>');
-    prepareSelect2Ajax('page_content_'+id_simples+'_form');
+    //prepareSelect2Ajax('page_content_'+id_simples+'_form');
   }
   this.doIndex = function(id_simples){
     $('.sl-menu-link').removeClass('active');
@@ -294,13 +295,15 @@ function SolvesUi() {
       $('.usuario_logado_show').hide();
       $('.usuario_logado_hide').show(); 
       $('.usuario_logado_alerta_email_nao_confirmado').hide();
-      $('.usuario_logado_nome').html('');
-      $('.usuario_logado_email').html('');
-      $('.usuario_logado_avatar').attr('src', '');
-      $('.usuario_logado_avatar').attr('alt', '');
-      $('.usuario_logado_avatar').attr('title', '');
-      $('.usuario_logado_data_nascimento').html('');
-      $('.usuario_logado_idade').html('');
+      for(att in obj){
+        if(att=='avatar'){
+          $('.usuario_logado_avatar').attr('src', '');
+          $('.usuario_logado_avatar').attr('alt', '');
+          $('.usuario_logado_avatar').attr('title', '');
+        }else{
+          $('.usuario_logado_'+att).html('');
+        }
+      }
     }else{ 
       $('.usuario_logado_show').show();
       $('.usuario_logado_hide').hide();    
@@ -310,13 +313,18 @@ function SolvesUi() {
          // this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
         }
       }
-      $('.usuario_logado_nome').html($.Solves.getPerfilLogado().nome);
-      $('.usuario_logado_email').html($.Solves.getPerfilLogado().email);
-      $('.usuario_logado_avatar').attr('src', $.Solves.getPerfilLogado().avatar);
-      $('.usuario_logado_avatar').attr('alt', $.Solves.getPerfilLogado().nome);
-      $('.usuario_logado_avatar').attr('title', $.Solves.getPerfilLogado().nome);
-      $('.usuario_logado_data_nascimento').html($.Solves.getPerfilLogado().data_nascimento_label);
-      $('.usuario_logado_idade').html($.Solves.getPerfilLogado().idade);
+      var obj = $.Solves.getPerfilLogado();
+      for(att in obj){
+        if(att=='avatar'){
+          $('.usuario_logado_avatar').attr('src', $.Solves.getPerfilLogado().avatar);
+          $('.usuario_logado_avatar').attr('alt', $.Solves.getPerfilLogado().nome);
+          $('.usuario_logado_avatar').attr('title', $.Solves.getPerfilLogado().nome);
+        }else if(att=='data_nascimento'){
+          $('.usuario_logado_data_nascimento').html($.Solves.getPerfilLogado().data_nascimento_label);
+        }else{
+          $('.usuario_logado_'+att).html($.Solves.getPerfilLogado()[att]);
+        }
+      }
     }
   }
   this.addNotificationToTopPanel = function(linkUrl, imgUrl, title, txt, dataHora){
