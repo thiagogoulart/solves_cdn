@@ -1,12 +1,12 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 30/08/2019
+*last version of 06/09/2019
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 4;
-  this.version = '1.3';
+  this.versionId = 5;
+  this.version = '1.4';
   this.debug = false;
 
   this.facebook_useMessenger = false;
@@ -206,7 +206,7 @@ function SolvesUi() {
   }
   this.verificaLogadoAbreDireto = function(isApp, modulo){
     if($.Solves.isLogado()){
-      window.location.href = '/home';
+       this.abrePagina('home');
     }else{
       this.doFxHiding('public-loading');
       this.doFxShowing('public-wrapper');
@@ -222,7 +222,7 @@ function SolvesUi() {
     }
     //refreshUrlBrowser('/'+page, null);
     $.Solves.url = page;
-    window.location.href = $.Solves.siteUrl+'/'+page;
+    window.location.href = $.Solves.getCompleteUrl(true, page);
   }
   this.ajustaDadosExibicaoPagina = function(titulo, subtitulo, id_simples){
     $.Solves.telaAtualId = id_simples;

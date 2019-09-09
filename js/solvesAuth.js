@@ -4,8 +4,8 @@
 **/
 function SolvesAuth() {
   this.solvesPluginName = 'SolvesAuth';
-  this.versionId = 2;
-  this.version = '1.1';
+  this.versionId = 3;
+  this.version = '1.2';
   this.debug = false;
   this.urlLogadoSucesso = null;
   this.urlTermosUso = null;
@@ -81,7 +81,7 @@ function SolvesAuth() {
   this.getFireBaseUiConfig = function(){
     // FirebaseUI config.
     var config = {
-      signInSuccessUrl: this.urlLogadoSucesso,
+      signInSuccessUrl: $.Solves.getCompleteUrl(true, this.urlLogadoSucesso),
       signInOptions: this.fireBaseSignInOptions,
       callbacks: this.getCallbacks(this.getAuthSuccessFunc(), this.getAuthErrorFunc())
     };
