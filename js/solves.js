@@ -1,16 +1,17 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 06/09/2019
+*last version of 23/09/2019
 **/
 function Solves() {
-  this.versionId = 4;
-  this.version = '1.3';
+  this.versionId = 5;
+  this.version = '1.4';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
   this.siteShortName = 'solves_short_name';
   this.icon =  this.siteUrl+'...';
+  this.restUrl = 'https://...';
   this.solvesPlugins = [];
   this.app = false;
   this.url = null;
@@ -54,11 +55,15 @@ function Solves() {
     this.siteTitulo = p_siteTitulo;
     this.siteShortName = p_siteShortName;
     this.icon = p_icon;
+    this.restUrl = this.siteUrl;
     for(var keyPlugin in this.solvesPlugins){
       var plugin = this.solvesPlugins[keyPlugin];
       if (plugin.afterSolvesInit && (typeof plugin.afterSolvesInit == "function")) {plugin.afterSolvesInit();}
     }
   }
+  this.setRestUrl = function(p){
+      this.restUrl = p;
+  };
   this.setFireBaseConfig = function(config){
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
       && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
@@ -312,7 +317,7 @@ function Solves() {
     return this.siteUrl;
   }
   this.getSiteUrlRest = function(modulo){
-    return this.siteUrl+'rest/';
+    return this.restUrl+'rest/';
   }
   this.getSubObjetos = function(classe){
     return this.subObjetos[classe];
@@ -484,6 +489,9 @@ function Solves() {
   }
   this.refreshUrlBrowser = function(url, title){
     window.history.pushState(url, this.siteTitulo+(this.isNotEmpty(title)?' '+title:''), url);
+  }
+  this.refreshTelaAtual = function(){
+    window.location.href = $.Solves.getCompleteUrl(true, this.telaAtualId);
   }
   this.logoff = function(){
       this.PERFIL_LOGADO = null;
