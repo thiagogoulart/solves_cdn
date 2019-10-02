@@ -4,8 +4,8 @@
 *last version of 23/09/2019
 **/
 function Solves() {
-  this.versionId = 5;
-  this.version = '1.4';
+  this.versionId = 6;
+  this.version = '1.5';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
@@ -592,6 +592,23 @@ function Solves() {
   }
   this.normalizeImgUrl = function(imgUrl){
     return (this.isNotEmpty(imgUrl) ? ((imgUrl.slice!==undefined && typeof imgUrl.slice=="function" && imgUrl.slice(0, 5) === 'data:')?imgUrl.replace(/ /g, '+'):imgUrl) : '');
+  };
+
+  this.getShortnameLikeUrl =function(palavra, maxLength ) {
+      palavra = palavra.toLowerCase();
+      com_acento = 'áàãâäéèêëíìîïóòõôöúùûüç ';
+      sem_acento = 'aaaaaeeeeiiiiooooouuuuc-';
+      nova='';
+      last = ((this.isNotEmpty(maxLength) && maxLength < palavra.length) ? maxLength : palavra.length);
+      for(i=0;i!=last;i++) {
+          if (com_acento.search(palavra.substr(i,1))>=0) {
+              nova+=sem_acento.substr(com_acento.search(palavra.substr(i,1)),1);
+          }
+          else {
+              nova+=palavra.substr(i,1);
+          }
+      }
+      return nova;
   };
   this.base64ToBlob = function(base64, mime) {
       mime = mime || '';
