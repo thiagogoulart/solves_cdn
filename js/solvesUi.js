@@ -2,11 +2,12 @@
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
 *last version of 06/09/2019
+*last version of 04/10/2019
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 5;
-  this.version = '1.4';
+  this.versionId = 6;
+  this.version = '1.5';
   this.debug = false;
 
   this.facebook_useMessenger = false;
@@ -435,6 +436,16 @@ function SolvesUi() {
       $('meta[property="og:description"]').attr('content', descr);
     }
   };
+  this.setCheckboxValue = function(elmId, value){
+    if($.Solves.isTrue(value)){
+      $('#'+elmId).attr('checked','checked').val(true);
+    }else{
+      $('#'+elmId).removeAttr('checked').val(false);
+    }
+  };
+  this.getCheckboxValue = function(elmId){
+    return $.Solves.isTrue($('#'+elmId+':checked').val());
+  }
 }
 $.SolvesUi = new SolvesUi();
 $.SolvesUi.init();
