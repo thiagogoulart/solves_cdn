@@ -445,6 +445,20 @@ function SolvesUi() {
   };
   this.getCheckboxValue = function(elmId){
     return $.Solves.isTrue($('#'+elmId+':checked').val());
+  };
+  this.getSelect2Value = function(elmId){
+    var obj = $("#"+elmId).select2('data')[0];
+    if(obj){
+      return ("---"!=obj.id ? obj.id : null);
+    }
+    return null;
+  }
+  this.getSelect2Text = function(elmId){
+    var obj = $("#"+elmId).select2('data')[0];
+    if(obj){
+      return ("---"!=obj.text ? obj.text : null);
+    }
+    return null;
   }
 }
 $.SolvesUi = new SolvesUi();
