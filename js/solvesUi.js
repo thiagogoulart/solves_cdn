@@ -1,13 +1,13 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 06/09/2019
-*last version of 04/10/2019
+* version 1.6 of 06/11/2019
+* version 1.7 of 12/11/2019
 **/
 function SolvesUi() {
   this.solvesPluginName = 'SolvesUi';
-  this.versionId = 6;
-  this.version = '1.5';
+  this.versionId = 8;
+  this.version = '1.7';
   this.debug = false;
 
   this.facebook_useMessenger = false;
@@ -17,8 +17,8 @@ function SolvesUi() {
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesUi);
-    //TODO validações de dependencias
-    $('.usuario_logado_show').hide();
+    /*//TODO validações de dependencias */
+    if($('.usuario_logado_show') && $('.usuario_logado_show').length>0){$('.usuario_logado_show').hide();}
     this.initPreloader();
   };
   this.initPreloader = function(){
@@ -216,12 +216,12 @@ function SolvesUi() {
   this.abrePagina = function(page){
     this.loading(false);
     if(!$.Solves.isLogado()){
-    //   page = 'login';
+    /*//   page = 'login';*/
     }
     if(page.endsWith('#')){
       page = page.replace('#','');
     }
-    //refreshUrlBrowser('/'+page, null);
+    /*//refreshUrlBrowser('/'+page, null);*/
     $.Solves.url = page;
     window.location.href = $.Solves.getCompleteUrl(true, page);
   }
@@ -236,7 +236,7 @@ function SolvesUi() {
       $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
     }
     if($('#page_content_'+$.Solves.telaAtualId+'_form').length>0){
-      //prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+      /*//prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');*/
     }
     if($('#page_breadcrumb').length>0){
       $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/">Início</a>'+
@@ -264,7 +264,7 @@ function SolvesUi() {
       if($.Solves.isNotEmpty($.Solves.telaAtualSubtitulo)){
         $("#page_subtitle").html($.Solves.telaAtualSubtitulo);
       }
-    //prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');
+    /*//prepareSelect2Ajax('page_content_'+$.Solves.telaAtualId+'_form');*/
   }
   this.doNovo = function(id_simples){
     $('.page_content_'+id_simples).hide();
@@ -272,7 +272,7 @@ function SolvesUi() {
       $("#page_breadcrumb").html('<a class="breadcrumb-item" href="/home">Início</a>'+
           '<a class="breadcrumb-item" href="/'+id_simples+'">'+$.Solves.telaAtualTitulo+'</a>'+
           '<span class="breadcrumb-item active">Novo</span>');
-    //prepareSelect2Ajax('page_content_'+id_simples+'_form');
+    /*//prepareSelect2Ajax('page_content_'+id_simples+'_form');*/
   }
   this.doIndex = function(id_simples){
     $('.sl-menu-link').removeClass('active');
@@ -311,7 +311,7 @@ function SolvesUi() {
       if(($.Solves.getPerfilLogado().email_confirmado==undefined || !$.Solves.isTrue($.Solves.getPerfilLogado().email_confirmado))){  
         if($('.usuario_logado_alerta_email_nao_confirmado').length>0){
           $('.usuario_logado_alerta_email_nao_confirmado').show();
-         // this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);
+         /*// this.addNotificationToTopPanel(linkUrl, imgUrl, title, txt, dataHora);*/
         }
       }
       var obj = $.Solves.getPerfilLogado();
@@ -339,9 +339,9 @@ function SolvesUi() {
     if ($('#'+elmId).find("option[value='" + id + "']").length) {
         $('#'+elmId).val(id).trigger('change');
     } else { 
-        // Create a DOM Option and pre-select by default
+       /*// Create a DOM Option and pre-select by default */
         var newOption = new Option(value, id, true, true);
-        // Append it to the select
+        /*// Append it to the select*/
         $('#'+elmId).append(newOption).trigger('change');
     } 
   }
@@ -359,33 +359,59 @@ function SolvesUi() {
     $('.field-moeda').maskMoney({symbol:"R$",decimal:",",thousands:"."});
     $('.field-euro').maskMoney({symbol:"Euro",decimal:",",thousands:" "}); 
   }
-  this.getHtmlShareButtons = function(label, preText, titulo, completeUrl, img, faClass, linkClass){
-    if (!$.Solves.isNotEmpty(faClass)){
-      faClass = 'fa-2x';
+  this.ajustaMetaTags = function(completeUrl, titulo, descr, img){
+        completeUrl = $.Solves.getCompleteUrl(false, completeUrl);
+        $('link[rel="canonical"]').attr('href', completeUrl);
+        $('meta[property="og:url"]').attr('content', completeUrl);
+        if($.Solves.isNotEmpty(titulo) && titulo!= $.Solves.siteTitulo){
+          var title = $.Solves.siteTitulo+' - '+titulo;
+          $('title').html(title);
+          $('meta[name="twitter:title"]').attr('content', title);
+          $('meta[property="og:title"]').attr('content', title);
+        }
+        if($.Solves.isNotEmpty(img)){
+          var imgUrl = $.Solves.getCompleteDirectUrl(img);
+          $('meta[property="og:image"]').attr('content', imgUrl);
+          $('meta[name="twitter:image"]').attr('content',  imgUrl);
+        }
+        if($.Solves.isNotEmpty(descr)){
+          var description = descr+$('meta[name=description]').attr('content');
+          $('meta[name="description"]').attr('content', description);
+          $('meta[name="twitter:description"]').attr('content', description);
+          $('meta[property="og:description"]').attr('content', description);
+        }
     }
-    if (!$.Solves.isNotEmpty(linkClass)){
-      linkClass = 'pr-3';
-    }
-    var linkMsg = ($.Solves.isNotEmpty(preText)?preText : ('Olha%20o%20que%20eu%20vi%20no%20site%20'+$.Solves.siteTitulo+':%20'))+titulo;
-    var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
-    return '<div class="share_social_box row"><div class="col-sm-12">'+
-            '<span class="share_social_box_title">'+($.Solves.isNotEmpty(label)?label:'Compartilhar: ')+'</span></div><div class="col-sm-12">'+
-        '<a rel="noopener" class="share_social_whats '+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrl+'" target="_blank" title="Compartilhar no Whatsapp">'+
-            '<i class="fab '+faClass+' fa-whatsapp"></i>'+
-        '</a>'+
-        '<a rel="noopener" class="share_social_facebook '+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
-            '<i class="fab '+faClass+' fa-facebook"></i>'+
-        '</a>'+
-        '<a rel="noopener" class="share_social_twitter '+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
-            '<i class="fab '+faClass+' fa-twitter"></i>'+
-        '</a>'+
-        '<a rel="noopener" class="share_social_pinterest '+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+img:'')+'" target="_blank" title="Compartilhar no Pinterest">'+
-            '<i class="fab '+faClass+' fa-pinterest"></i>'+
-        '<a rel="noopener" class="share_social_linkedin '+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
-            '<i class="fab '+faClass+' fa-linkedin"></i>'+
-        '</a>'+
-        '</div></div>';
-}
+    this.getHtmlShareButtons = function(titulo, completeUrl, img, faClass, linkClass){
+      completeUrl = $.Solves.getCompleteUrl(false, completeUrl);
+      var linkMsg = 'Olha%20o%20que%20eu%20vi%20no%20site%20'+$.Solves.siteTitulo+':%20'+titulo;
+      var linkMsgComUrl = linkMsg+'%20'+completeUrl+'';
+      var linkMsgComUrlEncoded = linkMsg+'%20'+encodeURI(completeUrl)+'';
+      /* //TODO adicionar parametro utm_source na URL compartilhada */
+      return '<div class="share_social_box row"><div class="col-sm-12"><span class="share_social_box_title">Compartilhar: </span></div>'+
+            '<div class="col-sm-12">'+
+            '<a rel="noopener" class="share_social_whats mr-3 '+linkClass+'" href="https://api.whatsapp.com/send?text='+linkMsgComUrlEncoded+'" target="_blank" title="Compartilhar no Whatsapp">'+
+            '    <i class="fab fa-2x '+faClass+' fa-whatsapp"></i>'+
+            '</a>'+
+            '<a rel="noopener" class="share_social_telegram mr-3 '+linkClass+'" href="https://telegram.me/share/url?url='+completeUrl+'&amp;text='+linkMsg+'" target="_blank" title="Compartilhar no Telegram">'+
+            '    <i class="fab fa-2x '+faClass+' fa-telegram"></i>'+
+            '</a>'+
+            '<a rel="noopener" class="share_social_facebook mr-3 '+linkClass+'" href="https://www.facebook.com/sharer/sharer.php?u='+completeUrl+'" target="_blank" title="Compartilhar no Facebook">'+
+            '    <i class="fab fa-2x '+faClass+' fa-facebook"></i>'+
+            '</a>'+
+            '<a rel="noopener" class="share_social_twitter mr-3 '+linkClass+'" href="http://twitter.com/share?text='+linkMsg+'&amp;url='+completeUrl+'" target="_blank" data-role="shareLink" title="Compartilhar no Twitter">'+
+            '    <i class="fab fa-2x '+faClass+' fa-twitter"></i>'+
+            '</a>'+
+            '<a rel="noopener" class="share_social_pinterest mr-3 '+linkClass+'" href="http://pinterest.com/pin/create/button/?url='+completeUrl+($.Solves.isNotEmpty(img)?'&amp;media='+$.Solves.getCompleteDirectUrl(img):'')+'" target="_blank" title="Compartilhar no Pinterest">'+
+            '    <i class="fab fa-2x '+faClass+' fa-pinterest"></i>'+
+            '</a>'+
+            '<a rel="noopener" class="share_social_linkedin mr-3 '+linkClass+'" href="http://www.linkedin.com/shareArticle?mini=true&amp;url='+completeUrl+'" target="_blank" title="Compartilhar no LinkedIn">'+
+            '    <i class="fab fa-2x '+faClass+' fa-linkedin"></i>'+
+            '</a>'+
+            '<!-- a rel="noopener" class="share_social_email mr-3 '+linkClass+'" href="mailto:?Subject='+titulo+'&amp;Body='+linkMsgComUrl+'" target="_blank" title="Compartilhar por e-mail">'+
+            '    <i class="fa fa-2x '+faClass+' fa-envelope"></i>'+
+            '</a -->'+
+            '</div></div>';
+  };
   this.getAvatarImgHtml = function(avatar, title, tipo){
     var addClass = ($.Solves.isNotEmpty(tipo) ? 'avatar_img_'+tipo:''); 
     return this.getImgHtml(avatar, title, 'avatar_img '+addClass); 
@@ -416,25 +442,6 @@ function SolvesUi() {
                 '<p class="msg-summary">'+summary+'</p>'+
               '</div><!-- media-body -->'+
             '</a><!-- list-group-item -->';
-  }
-  this.ajustarMetaTags = function(completeUrl, titulo, descr, img){
-    $('link[rel="canonical"]').attr('href', completeUrl);
-    $('meta[property="og:url"]').attr('content', completeUrl);
-    if($.Solves.isNotEmpty(titulo) && titulo!=$.Solves.siteTitulo){ 
-      $('title').html($.Solves.siteTitulo+' - '+titulo);
-      $('meta[name="twitter:title"]').attr('content', $.Solves.siteTitulo+' - '+titulo);
-      $('meta[property="og:title"]').attr('content', $.Solves.siteTitulo+' - '+titulo);
-    }
-    if($.Solves.isNotEmpty(img)){
-      $('meta[property="og:image"]').attr('content', img);
-      $('meta[name="twitter:image"]').attr('content', img);
-    }
-    if($.Solves.isNotEmpty(descr)){
-      descr =  titulo+'. '+descr+' '+$.Solves.siteTitulo+'. '+$('meta[name=description]').attr('content');
-      $('meta[name="description"]').attr('content', descr);
-      $('meta[name="twitter:description"]').attr('content', descr);
-      $('meta[property="og:description"]').attr('content', descr);
-    }
   };
   this.setCheckboxValue = function(elmId, value){
     if($.Solves.isTrue(value)){

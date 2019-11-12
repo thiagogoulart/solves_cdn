@@ -93,11 +93,17 @@ function Solves() {
   this.isApp = function(){
     return this.isTrue(this.app);
   }
+  this.getCompleteDirectUrl = function(root, url){
+    return (this.isTrue(root)?'/':this.siteUrl)+this.getDirectUrl(false, url);
+  }
   this.getCompleteUrl = function(root, url){
     return (this.isTrue(root)?'/':this.siteUrl)+this.getPublicUrl(url);
   }
   this.getPublicUrl = function(url){
-    return (this.isApp()?'app/':'')+url;
+    return this.getDirectUrl(this.isApp(), url);
+  }
+  this.getDirectUrl = function(isApp, url){
+    return (isApp?'app/':'')+url;
   }
   this.especialCharMask = function(str){
       str = str.replace(/[ÀÁÂÃÄÅ]/g,"A");
