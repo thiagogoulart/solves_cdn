@@ -1,11 +1,11 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 23/09/2019
+*last version of 14/09/2019
 **/
 function Solves() {
-  this.versionId = 6;
-  this.version = '1.5';
+  this.versionId = 7;
+  this.version = '1.6';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
@@ -205,16 +205,24 @@ function Solves() {
           data: formData,
           headers: {"Authorization": token},
            success: function(data){ 
-              successFunc(data);
-              result = jQuery.parseJSON(data);
-              if($.Solves.isTrue(result['logoff'])){
-                console.log('não autorizado.');
-                $.Solves.logoff();
+              try{                  
+                successFunc(data);
+                result = jQuery.parseJSON(data);
+                if($.Solves.isTrue(result['logoff'])){
+                  console.log('não autorizado.');
+                  $.Solves.logoff();
+                }
+              }catch(error){
+                console.log('error on ajax.'+error);
               }
               $.Solves.loaded();
             },
             error: function(data){ 
-              errorFunc(data);
+              try{
+                errorFunc(data);
+              }catch(error){
+                console.log('error on error handling ajax.'+error);
+              }
               $.Solves.loaded();
             },
             complete: function(data){
@@ -231,11 +239,19 @@ function Solves() {
           cache: false,
           data: data,
            success: function(data){ 
-              successFunc(data);
+              try{
+                successFunc(data);
+              }catch(error){
+                console.log('error on ajaxExternal.'+error);
+              }
               $.Solves.loaded();
             },
             error: function(data){ 
-              errorFunc(data);
+              try{
+                errorFunc(data);
+              }catch(error){
+                console.log('error on error handling ajaxExternal.'+error);
+              }
               $.Solves.loaded();
             }
       };
