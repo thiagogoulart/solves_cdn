@@ -1,4 +1,4 @@
-AddHandler application/x-httpd-php53 .php
+#AddHandler application/x-httpd-php53 .php
 
 Options -Indexes
 
@@ -34,9 +34,9 @@ ErrorDocument 503     /503.html
     Header always  set Cache-Control "max-age=604800, public"
   </FilesMatch>
 </IfModule>
-<IfModule mod_suphp.c>
-suPHP_ConfigPath /opt/php53/lib
-</IfModule>
+#<IfModule mod_suphp.c>
+#suPHP_ConfigPath /opt/php53/lib
+#</IfModule>
 <files ~ "^.*\.([Hh][Tt][Aa])">
 order allow,deny
 deny from all
