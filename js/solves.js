@@ -1,15 +1,16 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 14/09/2019
+*last version of 25/11/2019
 **/
 function Solves() {
-  this.versionId = 7;
-  this.version = '1.6';
+  this.versionId = 8;
+  this.version = '1.7';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
   this.siteShortName = 'solves_short_name';
+  this.siteContext='/';
   this.icon =  this.siteUrl+'...';
   this.restUrl = 'https://...';
   this.solvesPlugins = [];
@@ -64,6 +65,9 @@ function Solves() {
   this.setRestUrl = function(p){
       this.restUrl = p;
   };
+  this.setSiteContext = function(p){
+      this.siteContext = p;
+  };
   this.setFireBaseConfig = function(config){
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
       && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
@@ -93,11 +97,14 @@ function Solves() {
   this.isApp = function(){
     return this.isTrue(this.app);
   }
+  this.getRootFolder = function(){
+    return this.siteContext;
+  };
   this.getCompleteDirectUrl = function(root, url){
-    return (this.isTrue(root)?'/':this.siteUrl)+this.getDirectUrl(false, url);
+    return (this.isTrue(root)?this.getRootFolder():this.siteUrl)+this.getDirectUrl(false, url);
   }
   this.getCompleteUrl = function(root, url){
-    return (this.isTrue(root)?'/':this.siteUrl)+this.getPublicUrl(url);
+    return (this.isTrue(root)?this.getRootFolder():this.siteUrl)+this.getPublicUrl(url);
   }
   this.getPublicUrl = function(url){
     return this.getDirectUrl(this.isApp(), url);
