@@ -4,8 +4,8 @@
 **/
 function SolvesAuth() {
   this.solvesPluginName = 'SolvesAuth';
-  this.versionId = 3;
-  this.version = '1.2';
+  this.versionId = 4;
+  this.version = '1.3';
   this.debug = false;
   this.urlLogadoSucesso = null;
   this.urlTermosUso = null;
@@ -125,56 +125,56 @@ function SolvesAuth() {
       if(all || this.isFireBaseAuthType('phone')){
         this.fireBaseSignInOptions.push({provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,recaptchaParameters: this.getCaptchaParams(),defaultCountry: 'BR', defaultNationalNumber: '55',loginHint: '+55 (99) 99999-9999'});
       }
-    }
-    if(firebase.auth!==undefined){
+
       if(this.isFireBaseAuthType('anonymous')){
         this.fireBaseSignInOptions.push(firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID);
       }
+
+      firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            this.fireBaseAuthUser = user;
+            this.fireBaseAuthUser.getIdToken().then(function(accessToken) {
+              this.fireBaseAuthUserAccessToken = accessToken;
+            });
+          } else {
+            this.fireBaseAuthUser=null;
+            this.fireBaseAuthUserAccessToken=null;
+          }
+          $.SolvesStorage.setStorageFireBaseAuthUser(this.fireBaseAuthUser);
+          $.SolvesStorage.setStorageFireBaseAuthToken(this.fireBaseAuthUserAccessToken);
+          if($.Solves.isNotEmpty(this.fireBaseAuthUser) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile)){           
+            var perfil = {};
+            perfil.data_nascimento = null;
+            perfil.email_confirmado = true;
+            perfil.email = this.fireBaseAuthUser.additionalUserInfo.profile.email;
+            perfil.nome = this.fireBaseAuthUser.additionalUserInfo.profile.name;
+            if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile) &&
+            $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture) &&
+            $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data) && 
+            $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url) && 
+             typeof this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url =='string'){
+              perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url);
+            }
+            if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.picture) && typeof this.fireBaseAuthUser.additionalUserInfo.picture =='string'){
+              perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.picture);
+            }
+            
+            if(!$.Solves.isNotEmpty(perfil.email)){
+              perfil.email = this.fireBaseAuthUser.user.email;
+            }
+            if(!$.Solves.isNotEmpty(perfil.nome)){
+              perfil.nome = this.fireBaseAuthUser.user.displayName;
+            }
+            if(!$.Solves.isNotEmpty(perfil.avatar)){
+              perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.user.photoURL);
+            }
+            $.Solves.atualizaPerfilLogado(perfil);
+          }
+        }, function(error) {
+          console.log(error);
+        });
+      firebase.auth().languageCode =  'pt';
     }
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          this.fireBaseAuthUser = user;
-          this.fireBaseAuthUser.getIdToken().then(function(accessToken) {
-            this.fireBaseAuthUserAccessToken = accessToken;
-          });
-        } else {
-          this.fireBaseAuthUser=null;
-          this.fireBaseAuthUserAccessToken=null;
-        }
-        $.SolvesStorage.setStorageFireBaseAuthUser(this.fireBaseAuthUser);
-        $.SolvesStorage.setStorageFireBaseAuthToken(this.fireBaseAuthUserAccessToken);
-        if($.Solves.isNotEmpty(this.fireBaseAuthUser) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo) && $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile)){           
-          var perfil = {};
-          perfil.data_nascimento = null;
-          perfil.email_confirmado = true;
-          perfil.email = this.fireBaseAuthUser.additionalUserInfo.profile.email;
-          perfil.nome = this.fireBaseAuthUser.additionalUserInfo.profile.name;
-          if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile) &&
-          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture) &&
-          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data) && 
-          $.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url) && 
-           typeof this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url =='string'){
-            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.profile.picture.data.url);
-          }
-          if($.Solves.isNotEmpty(this.fireBaseAuthUser.additionalUserInfo.picture) && typeof this.fireBaseAuthUser.additionalUserInfo.picture =='string'){
-            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.additionalUserInfo.picture);
-          }
-          
-          if(!$.Solves.isNotEmpty(perfil.email)){
-            perfil.email = this.fireBaseAuthUser.user.email;
-          }
-          if(!$.Solves.isNotEmpty(perfil.nome)){
-            perfil.nome = this.fireBaseAuthUser.user.displayName;
-          }
-          if(!$.Solves.isNotEmpty(perfil.avatar)){
-            perfil.avatar = $.Solves.normalizeImgUrl(this.fireBaseAuthUser.user.photoURL);
-          }
-          $.Solves.atualizaPerfilLogado(perfil);
-        }
-      }, function(error) {
-        console.log(error);
-      });
-    firebase.auth().languageCode =  'pt';
   }
   this.showAuthScreen = function(){
     // Initialize the FirebaseUI Widget using Firebase.
