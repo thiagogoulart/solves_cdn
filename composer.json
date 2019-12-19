@@ -1,0 +1,13 @@
+{
+    "name": "thiagogoulart/solves_cdn",
+    "description": "Assets úteis de Solves.",
+    "type": "library",  
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Thiago G.S. Goulart",
+            "email": "thiago@solves.com.br",
+            "homepage": "https://github.com/thiagogoulart"
+        }
+    ]
+}
