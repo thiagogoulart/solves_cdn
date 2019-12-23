@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 3;
-  this.version = '1.2';
+  this.versionId = 4;
+  this.version = '1.3';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -33,6 +33,7 @@ function SolvesVideo() {
   this.containerWatchCounterNumberElmId = 'watch_counter_number';
   this.containerWatchCounterSecsElmId = 'watch_counter_secs';
   this.containerWatchNextElmId = 'watch_next';
+  this.funcNext_string = '$.SolvesVideo.watchNextVideo()'; 
   /* PADRÃO DE NOMES DE PARAMETROS  */
   this.PARAM_NAME_VIDEOS = 'videos';
   /* Texts */
@@ -172,14 +173,15 @@ this.createContainerPublicWatchVideo = function(id){
     '</div>').focus();
    this.onYouTubeIframeAPIReady(this.containerWatchPlayerElmId, $.Solves.objeto.url);
 }
-this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unblockBtnId, counterContainerId){  
+this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unblockBtnId, counterContainerId, funcNext_string){ 
+
 //console.log('contagem_tempo:'+this.secondsToWatch);
     if (this.secondsToWatch == 0) {
       this.restartSecondsToWatch();
       $('#'+counterContainerId).hide();
       $('#'+counterNumberElmId).html(0);
       $('#'+counterSecondsTextElmId).html('segundo');
-      this.unblockNextButtonVideo(unblockBtnId);
+      this.unblockNextButtonVideo(unblockBtnId, funcNext_string);
     }  else{
       if(!this.videoPause){
         $('#'+counterContainerId).show();
@@ -189,14 +191,14 @@ this.contagem_tempo = function(counterNumberElmId, counterSecondsTextElmId, unbl
         var secs = (this.secondsToWatch==this.initialSecondsToWatch ? 4000 : 1000);
         this.secondsToWatch = this.secondsToWatch - 1;
       }
-      this.timeoutContagemWatch = setTimeout("$.SolvesVideo.contagem_tempo('"+counterNumberElmId+"', '"+counterSecondsTextElmId+"', '"+unblockBtnId+"', '"+counterContainerId+"')", secs);
+      this.timeoutContagemWatch = setTimeout("$.SolvesVideo.contagem_tempo('"+counterNumberElmId+"', '"+counterSecondsTextElmId+"', '"+unblockBtnId+"', '"+counterContainerId+"', '"+funcNext_string+"')", secs);
     }                            
 }   
 this.blockNextButtonVideo = function(unblockBtnId){
   $('#'+unblockBtnId).removeClass('btn-success').addClass('btn-dark').attr('aria-disabled', 'true').attr('disabled', 'true').addClass('disabled').attr('href','return false');
 }
-this.unblockNextButtonVideo = function(unblockBtnId){
-  $('#'+unblockBtnId).removeClass('btn-dark').addClass('btn-success').removeAttr('aria-disabled').removeAttr('disabled').removeClass('disabled').attr('href','javascript:$.SolvesVideo.watchNextVideo()');
+this.unblockNextButtonVideo = function(unblockBtnId, funcNext_string){
+  $('#'+unblockBtnId).removeClass('btn-dark').addClass('btn-success').removeAttr('aria-disabled').removeAttr('disabled').removeClass('disabled').attr('href','javascript:'+funcNext_string);
 }
 this.watchNextVideo = function(){
   if(!this.loggedInToWatchNextVideo || $.Solves.isLogado()){ 
@@ -228,7 +230,7 @@ this.likeVideo = function(videoId){
   
 }
 this.getSubscribeButton = function(channel_url, isFull){
-  return '<script src="https://apis.google.com/js/platform.js"></script><div class="g-ytsubscribe" data-channelid="'+channel_url+'" '+(isFull?'data-layout="full"':'')+' data-theme="dark" data-count="default"></div>';
+  return (undefined==document.scripts['apis-google-platform'] ? '<script src="https://apis.google.com/js/platform.js" id="apis-google-platform"></script>':'')+'<div class="g-ytsubscribe" data-channelid="'+channel_url+'" '+(isFull?'data-layout="full"':'')+' data-theme="dark" data-count="default"></div>';
 }
 this.stopAndClosePlayer = function(){
   if(this.youtubePlayer!=undefined && this.youtubePlayer!=null){ this.youtubePlayer.stopVideo();this.youtubePlayer.clearVideo();}
@@ -284,7 +286,7 @@ this.onPlayerReady = function(event, _self) {
 this.startContadorTempoMinimoVideo = function(){ 
   if(!this.loggedInToWatchNextVideo || $.Solves.isLogado()){ 
     this.restartSecondsToWatch();
-    this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId);
+    this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId, this.funcNext_string);
   }
 }
 this.onPlayerStateChange = function(event, _self) {
