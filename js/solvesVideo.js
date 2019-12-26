@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 4;
-  this.version = '1.3';
+  this.versionId = 5;
+  this.version = '1.4';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -16,13 +16,15 @@ function SolvesVideo() {
   this.youtubeRestUrlSearchChannel = null;
   this.videoDone = false;
   this.videoPause = false;
-  this.initialSecondsToWatch = 45;
-  this.secondsToWatch = 45;
+  this.initialSecondsToWatch = 60;
+  this.secondsToWatch = 60;
   this.timeoutContagemWatch = null;
   /*Functions Callbacks*/
   this.doAjaxVideoFindToWatch = function(){};
   /*Operations that must be logged in*/
   this.loggedInToWatchNextVideo = true;
+  /*Call next video if video end*/
+  this.surfMode = false;
   /*Element Identificators*/
   this.selectFieldClass = 'select_youtube_videos';
   this.containerWatchPlayerElmId = 'watch_player';
@@ -278,8 +280,6 @@ this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
   }
 }
 this.onPlayerReady = function(event, _self) {
-  console.log(event);
-  console.log(_self);
   event.target.playVideo();
   this.startContadorTempoMinimoVideo();
 }
@@ -290,10 +290,8 @@ this.startContadorTempoMinimoVideo = function(){
   }
 }
 this.onPlayerStateChange = function(event, _self) {
-  console.log(event);
-  console.log(_self);
   if(this.youtubePlayer.getPlayerState()==YT.PlayerState.ENDED){
-    this.watchNextVideo();
+    if(this.surfMode){this.watchNextVideo();}
   }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.PLAYING){
     //console.log('playing');
      this.videoPause = false;
