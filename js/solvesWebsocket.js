@@ -4,8 +4,8 @@
 **/
 function SolvesWebsocket() {
   this.solvesPluginName = 'SolvesWebsocket';
-  this.versionId = 1;
-  this.version = '1.0';
+  this.versionId = 2;
+  this.version = '1.1';
   this.debug = false;
 
   this.webSocketUrl = 'ws://...';
@@ -16,6 +16,12 @@ function SolvesWebsocket() {
   this.reconnectionAttempts = 5; // (Number) number of reconnection attempts before giving up (Infinity),
   this.reconnectionDelay = 3000;// (Number) how long to initially wait before attempting a new (1000) 
   this.reconnectionAttemptsDone = 0;
+
+  /*Event callbacks*/
+  this.doWhenOpen;
+  this.doWhenClose;
+  this.doWhenReceiveMessage;
+  this.doWhenError;
 
   this.init = function(){
     $.Solves.addSolvesPlugin(this.solvesPluginName, $.SolvesWebsocket);    
@@ -31,43 +37,107 @@ function SolvesWebsocket() {
     this.webSocketRoutes = [];
     this.webSocketRoutesConnections = [];
   };
-  this.getConexao = function(path){
-    var conn = this.getSolvesWebsocketConection(path);
+  this.getPathByParams = function(name, params){
+    var path = this.getConfigWebsocketRoute(name).path;
+    if(params!==undefined && params!=null){
+      if(Array.isArray(params)){
+        var paramLen = params.pength
+        for (i = 0; i != paramLen; i++) {
+          path += (i==0?'?':'&').params[i];
+        }
+      }else{
+        path += '?'+params;
+      }
+    }
+    return path;
+  };
+  this.getConnection = async function(name, params){    
+    var path = this.getPathByParams(name, params);
+    this.getConexao(name, path);
+    return this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
+  };
+  this.getConfigWebsocketRoute = function(name){
+    var route = null;
+    for(var i in $.SolvesWebsocket.webSocketRoutes){
+      var r = $.SolvesWebsocket.webSocketRoutes[i];
+      if(typeof r!="function" && $.Solves.isNotEmpty(r.name) && r.name==name){
+        route = r;
+        break;
+      }
+    }
+    return route;
+  };
+  this.getConexao = function(name, path){
+    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn==undefined || conn==null){
-      conn = this.criarConexao(path);
+      conn = this.criarConexao(name, path);
     }
     return (conn!==undefined && conn!=null ? conn.getConexao() : null);
   };
-  this.getSolvesWebsocketConection = function(path){
+  this.getSolvesWebsocketConection = function(name, path){
     var conn = this.webSocketRoutesConnections[path];
     if(conn!=null && conn.isClosed()){
       // console.log(conn.getConexao());
-      conn = this.doNewConexao(path);
+      conn = this.doNewConexao(name, path);
     }
     return conn;
   };
-  this.criarConexao = function(path){
-    var conn = this.getSolvesWebsocketConection(path);
+  this.criarConexao = function(name, path){
+    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn==undefined || conn==null){
-        this.doNewConexao(path);
+        this.doNewConexao(name, path);
     }else if(conn.isClosed()){
         this.webSocketRoutesConnections[path].open();
     }
     return this.webSocketRoutesConnections[path];
   };
-  this.doNewConexao = function(path){
-    this.webSocketRoutesConnections[path] = new SolvesWebsocketConnection(path, this.webSocketUrl+path);
+  this.doNewConexao = function(name, path){
+    this.webSocketRoutesConnections[path] = new SolvesWebsocketConnection(name, path, this.webSocketUrl+path, this.debug, this.doWhenOpen, this.doWhenClose, this.doWhenReceiveMessage, this.doWhenError);
     this.webSocketRoutesConnections[path].open();
   };
-  this.fecharConexao = function(path){
-    var conn = this.getSolvesWebsocketConection(path);
+  this.openConnection = function(name, params){    
+    var path = this.getPathByParams(name, params);
+    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
+    if(conn!=undefined && conn!=null){
+        conn.open();
+    }
+  };  
+  this.restartConnection = function(name, params){    
+    var path = this.getPathByParams(name, params);
+    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
+    if(conn!=undefined && conn!=null){
+        conn.restart();
+    }
+  };  
+  this.closeConnection = function(name, params){    
+    var path = this.getPathByParams(name, params);
+    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn!=undefined && conn!=null){
         conn.close();
         this.webSocketRoutesConnections[path].remove();
     }
   };
+  this.sendTxtMsg = function(connectionName, connectionParams, receiverId, msg) {
+    this.sendTxtMsgComRestAction(connectionName, connectionParams, '', '', receiverId, msg, false);
+  };
+  this.sendObjMsg = function(connectionName, connectionParams, receiverId, objMsg) {
+    this.sendObjMsgComRestAction(connectionName, connectionParams, '', '', receiverId, objMsg, false);
+  };
+  this.sendTxtMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, msg, waitingAnswer) {
+    this.getConnection(connectionName, connectionParams).then(conn => {
+      setTimeout(function(){conn.sendTxtMsg(restName, methodName, receiverId, msg, waitingAnswer);}, 
+        (conn.isOpening()?1000:0));
+    });
+  };
+  this.sendObjMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, objMsg, waitingAnswer) {
+    this.getConnection(connectionName, connectionParams).then(conn => {        
+      setTimeout(function(){conn.sendObjMsg(restName, methodName, receiverId, objMsg, waitingAnswer);}, 
+        (conn.isOpening()?1000:0));
+    });
+  };
 };
-function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
+function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWhenOpen, doWhenClose, doWhenReceiveMessage, doWhenError) {
+  this.name = name;
   this.path = path;
   this.webSocketUrlWithPath = webSocketUrlWithPath;
   this.IS_SOCKET_ABERTO = false;
@@ -76,6 +146,7 @@ function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
   this.IS_SOCKET_FAIL_EXCEPTION = null;
   this.conn;
   this.messages = [];
+  this.debug=debug;
 
   /*Socket has been created. The connection is not yet open.*/
   this.STATUS_CONNECTING =0;
@@ -85,6 +156,12 @@ function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
   this.STATUS_CLOSING =2;
   /*  The connection is closed or couldn't be opened..*/
   this.STATUS_CLOSED =3;
+
+  /*Event callbacks*/
+  this.doWhenOpen = doWhenOpen;
+  this.doWhenClose = doWhenClose;
+  this.doWhenReceiveMessage = doWhenReceiveMessage;
+  this.doWhenError = doWhenError;
 
   this.open = async function(){
     // console.log('this.open');
@@ -142,29 +219,53 @@ function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
     return this.conn;
   };
   this.onSocketOpen = function(evt) {
-      $.SolvesWebsocket.getSolvesWebsocketConection(this.path).IS_SOCKET_ABERTO = true;
-      $.SolvesWebsocket.getSolvesWebsocketConection(this.path).IS_SOCKET_ABRINDO = false;
-      // console.log("Connection established!");
+     if(this.debug){console.log('onSocketOpen');}
+      this.IS_SOCKET_ABERTO = true;
+      this.IS_SOCKET_ABRINDO = false;
+      
+      try{
+        if(this.doWhenOpen!==undefined && typeof this.doWhenOpen=="function"){
+          this.doWhenOpen(evt);
+        }else {console.log('Não encontrado callback para doWhenOpen');}
+      }catch(error){
+        console.log('error on error handling doWhenOpen callback.'+error);
+      }
   };
   this.onSocketClose = function(evt) {
-    // console.log('this.onSocketClose');
-    $.SolvesWebsocket.getSolvesWebsocketConection(this.path).IS_SOCKET_ABERTO = false;
-    $.SolvesWebsocket.getSolvesWebsocketConection(this.path).IS_SOCKET_ABRINDO = false;
-      //TODO
-     // mostraRecarregar();
+     if(this.debug){console.log('onSocketClose');}
+    this.IS_SOCKET_ABERTO = false;
+    this.IS_SOCKET_ABRINDO = false;
+    
+    try{
+      if(this.doWhenClose!==undefined && typeof this.doWhenClose=="function"){
+        this.doWhenClose(evt);
+        }else {console.log('Não encontrado callback para doWhenClose');}
+    }catch(error){
+      console.log('error on error handling doWhenClose callback.'+error);
+    }
   };
   this.onSocketReceiveMessage = function(evt) {
-      //TODO
+      if(this.debug){console.log('onSocketReceiveMessage');}
       var json = evt.data;
-      // console.log(json);
       var obj = jQuery.parseJSON(json);
-      // console.log(obj);
-      //closeLoading();
+      if(this.debug){console.log(obj);console.log(evt);}
+      try{
+        if(this.doWhenReceiveMessage!==undefined && typeof this.doWhenReceiveMessage=="function"){
+          this.doWhenReceiveMessage(obj, evt);
+        }else {console.log('Não encontrado callback para doWhenReceiveMessage');}
+      }catch(error){
+        console.log('error on error handling doWhenReceiveMessage callback.'+error);
+      }
   };
   this.onSocketError = function(evt) {
-      //TODO
-      // console.log(evt.data);
-     // mostraRecarregar();
+     if(this.debug){console.log('onSocketError');}
+     try{
+        if(this.doWhenError!==undefined && typeof this.doWhenError=="function"){
+          this.doWhenError(evt.data);
+        }else {console.log('Não encontrado callback para doWhenError');}
+      }catch(error){
+        console.log('error on error handling doWhenError callback.'+error);
+      }
   };
   this.sendTxtMsg = function(restName, methodName, receiverId, msg, waitingAnswer) {
     var objMsg = msg;
@@ -182,15 +283,11 @@ function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
     try{
       var _self = this;
       this.getConexaoAtiva().then(conn => {
-        $.SolvesWebsocket.getSolvesWebsocketConection(this.path).conn = conn;
-        if(_self.STATUS_OPEN==conn.readyState){
-          conn.send(JSON.stringify(jsonMsg))
-        }else{
-          // console.log('Não encontrada conexão ativa');
-        }
+        if(_self.debug){console.log(conn);}
+        this.conn.send(JSON.stringify(jsonMsg));
       });
     }catch(error){
-      // console.log('error on sendingMessage.'+error);
+      console.log('error on sendingMessage.'+error);
       if(waitingAnswer){
         this.messages[idMsg].remove();
       }
@@ -202,15 +299,6 @@ function SolvesWebsocketConnection(path, webSocketUrlWithPath) {
     if(pluginStorage!=null){
       var token = pluginStorage.getStorageAuthToken();
       msgObj.token = token;
-      /*var pluginGeo = $.Solves.getSolvesPlugin('SolvesGeo');
-      if(pluginGeo!=null){
-        if(pluginGeo.addressData!=undefined && pluginGeo.addressData!=null){
-          json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_ADDRESS_DATA+'='+$.Solves.escapeTextField(JSON.stringify(pluginGeo.addressData));
-        }
-        if(pluginGeo.geoData!=undefined && pluginGeo.geoData!=null){
-        json += (json.length>0 ? '&' : '?')+this.PARAM_NAME_GEO_DATA+'='+$.Solves.escapeTextField(JSON.stringify(pluginGeo.geoData));
-        }
-      }*/
     }
     if(objMsg!=undefined){
       msgObj.dados = objMsg;
