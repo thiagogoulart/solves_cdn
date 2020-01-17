@@ -4,8 +4,8 @@
 **/
 function SolvesWebsocket() {
   this.solvesPluginName = 'SolvesWebsocket';
-  this.versionId = 2;
-  this.version = '1.1';
+  this.versionId = 3;
+  this.version = '1.2';
   this.debug = false;
 
   this.webSocketUrl = 'ws://...';
@@ -67,7 +67,11 @@ function SolvesWebsocket() {
     }
     return route;
   };
-  this.getConexao = function(name, path){
+  this.getConexao = function(name, path, isRestrito){
+    var isRestrito = $.Solves.isTrue(isRestrito);
+    if(isRestrito){
+      path = this.addUserTokenAndDataParams(path);
+    }
     var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn==undefined || conn==null){
       conn = this.criarConexao(name, path);
@@ -109,13 +113,20 @@ function SolvesWebsocket() {
         conn.restart();
     }
   };  
-  this.closeConnection = function(name, params){    
+  this.closeConnection = function(name, params, isRestrito){   
+    var isRestrito = $.Solves.isTrue(isRestrito); 
+    if(isRestrito){
+      path = this.addUserTokenAndDataParams(path);
+    }
     var path = this.getPathByParams(name, params);
     var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn!=undefined && conn!=null){
         conn.close();
         this.webSocketRoutesConnections[path].remove();
     }
+  };
+  this.addUserTokenAndDataParams = function(path){
+     return path+((path.indexOf("?") != -1) ? '&' : '?')+$.Solves.getTokenUrlParam();     
   };
   this.sendTxtMsg = function(connectionName, connectionParams, receiverId, msg) {
     this.sendTxtMsgComRestAction(connectionName, connectionParams, '', '', receiverId, msg, false);
@@ -298,7 +309,9 @@ function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWh
     var pluginStorage = $.Solves.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
       var token = pluginStorage.getStorageAuthToken();
+      var userData = JSON.stringify(pluginStorage.getStorageAuthUserData());
       msgObj.token = token;
+      msgObj.userData = userData;
     }
     if(objMsg!=undefined){
       msgObj.dados = objMsg;
@@ -310,46 +323,6 @@ function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWh
       msgObj.receiver_id = receiverId;
     }
     return msgObj;
-  };
-  this.getParamRequest = function(formData, successFunc, errorFunc){
-    var token = null;
-    var pluginStorage = this.getSolvesPlugin('SolvesStorage');
-    if(pluginStorage!=null){
-      token = pluginStorage.getStorageAuthToken();
-    }
-    return {
-          type: reqMethod,
-          url: url,          
-          processData:false,
-          contentType: false,
-          cache: false,
-          data: formData,
-          headers: {"Authorization": token},
-           success: function(data){ 
-              try{                  
-                successFunc(data);
-                result = jQuery.parseJSON(data);
-                if($.Solves.isTrue(result['logoff'])){
-                  // console.log('não autorizado.');
-                  $.Solves.logoff();
-                }
-              }catch(error){
-                // console.log('error on ajax.'+error);
-              }
-              $.Solves.loaded();
-            },
-            error: function(data){ 
-              try{
-                errorFunc(data);
-              }catch(error){
-                // console.log('error on error handling ajax.'+error);
-              }
-              $.Solves.loaded();
-            },
-            complete: function(data){
-              $.Solves.loaded();
-            }
-      };
   };
 }
 $.SolvesWebsocket = new SolvesWebsocket();
