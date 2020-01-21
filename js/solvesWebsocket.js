@@ -4,8 +4,8 @@
 **/
 function SolvesWebsocket() {
   this.solvesPluginName = 'SolvesWebsocket';
-  this.versionId = 3;
-  this.version = '1.2';
+  this.versionId = 7;
+  this.version = '1.6';
   this.debug = false;
 
   this.webSocketUrl = 'ws://...';
@@ -38,7 +38,8 @@ function SolvesWebsocket() {
     this.webSocketRoutesConnections = [];
   };
   this.getPathByParams = function(name, params){
-    var path = this.getConfigWebsocketRoute(name).path;
+    var configuredRoute = this.getConfigWebsocketRoute(name);
+    var path = (configuredRoute!==undefined && configuredRoute!=null ? configuredRoute.path : null);
     if(params!==undefined && params!=null){
       if(Array.isArray(params)){
         var paramLen = params.pength
@@ -51,13 +52,14 @@ function SolvesWebsocket() {
     }
     return path;
   };
-  this.getConnection = async function(name, params){    
+  this.getConnection = async function(name, params, isRestrito){    
     var path = this.getPathByParams(name, params);
-    this.getConexao(name, path);
-    return this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
+    return this.getConexao(name, path, isRestrito);
+    //return this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
   };
   this.getConfigWebsocketRoute = function(name){
     var route = null;
+    //name = name.split('?')[0];
     for(var i in $.SolvesWebsocket.webSocketRoutes){
       var r = $.SolvesWebsocket.webSocketRoutes[i];
       if(typeof r!="function" && $.Solves.isNotEmpty(r.name) && r.name==name){
@@ -67,50 +69,52 @@ function SolvesWebsocket() {
     }
     return route;
   };
-  this.getConexao = function(name, path, isRestrito){
+  this.getConexao = async function(name, path, isRestrito){
+    if(!$.Solves.isNotEmpty(this.webSocketUrl)){
+      console.log('$.SolvesWebsocket não recebeu a definição do endpoint "webSocketUrl"');
+      return null;
+    }
     var isRestrito = $.Solves.isTrue(isRestrito);
     if(isRestrito){
       path = this.addUserTokenAndDataParams(path);
     }
-    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
-    if(conn==undefined || conn==null){
-      conn = this.criarConexao(name, path);
-    }
-    return (conn!==undefined && conn!=null ? conn.getConexao() : null);
+    return await this.criarConexao(name, path);
   };
-  this.getSolvesWebsocketConection = function(name, path){
+  this.getSolvesWebsocketConection = async function(name, path, doWhenOpen, doWhenClose, doWhenReceiveMessage, doWhenError){
     var conn = this.webSocketRoutesConnections[path];
-    if(conn!=null && conn.isClosed()){
-      // console.log(conn.getConexao());
-      conn = this.doNewConexao(name, path);
+      console.log(conn);
+    if(conn==null){
+      this.doWhenOpen = doWhenOpen;
+      this.doWhenClose = doWhenClose;
+      this.doWhenReceiveMessage = doWhenReceiveMessage;
+      this.doWhenError = doWhenError;
+      conn = await this.doNewConexao(name, path);
+    }else if(conn!=null && conn.isClosed()){
+      console.log(conn.IS_SOCKET_FAIL_EXCEPTION);
+      conn = this.restartConnection();
+      console.log(conn);
     }
     return conn;
   };
-  this.criarConexao = function(name, path){
-    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
-    if(conn==undefined || conn==null){
-        this.doNewConexao(name, path);
-    }else if(conn.isClosed()){
-        this.webSocketRoutesConnections[path].open();
-    }
-    return this.webSocketRoutesConnections[path];
+  this.criarConexao = async function(name, path){
+    return await this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
   };
-  this.doNewConexao = function(name, path){
+  this.doNewConexao = async function(name, path){
     this.webSocketRoutesConnections[path] = new SolvesWebsocketConnection(name, path, this.webSocketUrl+path, this.debug, this.doWhenOpen, this.doWhenClose, this.doWhenReceiveMessage, this.doWhenError);
-    this.webSocketRoutesConnections[path].open();
+    return await this.webSocketRoutesConnections[path].open();
   };
-  this.openConnection = function(name, params){    
+  this.openConnection = async function(name, params){    
     var path = this.getPathByParams(name, params);
-    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
-    if(conn!=undefined && conn!=null){
-        conn.open();
-    }
+    let conn = await this.criarConexao(name, path);
+    return (conn!==undefined && conn!=null ? conn.getConexao() : null); 
   };  
-  this.restartConnection = function(name, params){    
+  this.restartConnection = async function(name, params){    
     var path = this.getPathByParams(name, params);
     var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
-    if(conn!=undefined && conn!=null){
-        conn.restart();
+    if(conn!=undefined && conn!=null && conn.isClosed()){
+        await conn.restart();
+    }else{
+      return conn;
     }
   };  
   this.closeConnection = function(name, params, isRestrito){   
@@ -126,22 +130,36 @@ function SolvesWebsocket() {
     }
   };
   this.addUserTokenAndDataParams = function(path){
-     return path+((path.indexOf("?") != -1) ? '&' : '?')+$.Solves.getTokenUrlParam();     
+    var pluginStorage = $.Solves.getSolvesPlugin('SolvesStorage');
+    if(pluginStorage!=null){
+      let hasParam = (path.indexOf("?") != -1);
+      var token = pluginStorage.getStorageAuthToken();
+      var userData = pluginStorage.getStorageAuthUserData();
+      if($.Solves.isNotEmpty(token)){
+        path+=(hasParam?'&':'?')+$.Solves.PARAM_NAME_TOKEN+'='+token;
+        hasParam = true;
+      }
+      if($.Solves.isNotEmpty(userData)){
+        path+=(hasParam?'&':'?')+$.Solves.PARAM_NAME_USERDATA+'='+$.Solves.encondeUrlParam(userData);
+        hasParam = true;
+      }
+    }
+     return path;     
   };
-  this.sendTxtMsg = function(connectionName, connectionParams, receiverId, msg) {
-    this.sendTxtMsgComRestAction(connectionName, connectionParams, '', '', receiverId, msg, false);
+  this.sendTxtMsg = function(connectionName, connectionParams, receiverId, msg, isRestrito) {
+    this.sendTxtMsgComRestAction(connectionName, connectionParams, '', '', receiverId, msg, false, isRestrito);
   };
   this.sendObjMsg = function(connectionName, connectionParams, receiverId, objMsg) {
-    this.sendObjMsgComRestAction(connectionName, connectionParams, '', '', receiverId, objMsg, false);
+    this.sendObjMsgComRestAction(connectionName, connectionParams, '', '', receiverId, objMsg, false, isRestrito);
   };
-  this.sendTxtMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, msg, waitingAnswer) {
-    this.getConnection(connectionName, connectionParams).then(conn => {
+  this.sendTxtMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, msg, waitingAnswer, isRestrito) {
+    this.getConnection(connectionName, connectionParams, isRestrito).then(conn => {
       setTimeout(function(){conn.sendTxtMsg(restName, methodName, receiverId, msg, waitingAnswer);}, 
         (conn.isOpening()?1000:0));
     });
   };
-  this.sendObjMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, objMsg, waitingAnswer) {
-    this.getConnection(connectionName, connectionParams).then(conn => {        
+  this.sendObjMsgComRestAction = function(connectionName, connectionParams, restName, methodName, receiverId, objMsg, waitingAnswer, isRestrito) {
+    this.getConnection(connectionName, connectionParams, isRestrito).then(conn => {        
       setTimeout(function(){conn.sendObjMsg(restName, methodName, receiverId, objMsg, waitingAnswer);}, 
         (conn.isOpening()?1000:0));
     });
@@ -206,7 +224,7 @@ function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWh
   this.restart = async function(){
     // console.log('this.restart');
     this.close();
-    await this.open();
+    return await this.open();
   };
   this.isClosed = function(){
     return (!this.IS_SOCKET_ABERTO && (this.conn==null || (this.STATUS_CLOSED==this.conn.readyState)));
@@ -309,7 +327,7 @@ function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWh
     var pluginStorage = $.Solves.getSolvesPlugin('SolvesStorage');
     if(pluginStorage!=null){
       var token = pluginStorage.getStorageAuthToken();
-      var userData = JSON.stringify(pluginStorage.getStorageAuthUserData());
+      var userData = pluginStorage.getStorageAuthUserData();
       msgObj.token = token;
       msgObj.userData = userData;
     }
