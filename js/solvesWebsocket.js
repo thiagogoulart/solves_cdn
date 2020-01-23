@@ -82,7 +82,6 @@ function SolvesWebsocket() {
   };
   this.getSolvesWebsocketConection = async function(name, path, doWhenOpen, doWhenClose, doWhenReceiveMessage, doWhenError){
     var conn = this.webSocketRoutesConnections[path];
-      console.log(conn);
     if(conn==null){
       this.doWhenOpen = doWhenOpen;
       this.doWhenClose = doWhenClose;
@@ -123,10 +122,10 @@ function SolvesWebsocket() {
     if(isRestrito){
       path = this.addUserTokenAndDataParams(path);
     }
-    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
+    var conn = this.webSocketRoutesConnections[path];
     if(conn!=undefined && conn!=null){
         conn.close();
-        this.webSocketRoutesConnections[path].remove();
+        delete this.webSocketRoutesConnections[path];
     }
   };
   this.addUserTokenAndDataParams = function(path){
