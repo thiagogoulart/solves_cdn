@@ -4,8 +4,8 @@
 **/
 function SolvesWebsocket() {
   this.solvesPluginName = 'SolvesWebsocket';
-  this.versionId = 7;
-  this.version = '1.6';
+  this.versionId = 8;
+  this.version = '1.7';
   this.debug = false;
 
   this.webSocketUrl = 'ws://...';
@@ -117,12 +117,12 @@ function SolvesWebsocket() {
       return conn;
     }
   };  
-  this.closeConnection = function(name, params, isRestrito){   
+  this.closeConnection = function(name, params, isRestrito){     
+    var path = this.getPathByParams(name, params);
     var isRestrito = $.Solves.isTrue(isRestrito); 
     if(isRestrito){
       path = this.addUserTokenAndDataParams(path);
     }
-    var path = this.getPathByParams(name, params);
     var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
     if(conn!=undefined && conn!=null){
         conn.close();
