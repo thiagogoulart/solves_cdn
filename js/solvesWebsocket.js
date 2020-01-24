@@ -4,8 +4,8 @@
 **/
 function SolvesWebsocket() {
   this.solvesPluginName = 'SolvesWebsocket';
-  this.versionId = 8;
-  this.version = '1.7';
+  this.versionId = 9;
+  this.version = '1.8';
   this.debug = false;
 
   this.webSocketUrl = 'ws://...';
@@ -16,6 +16,8 @@ function SolvesWebsocket() {
   this.reconnectionAttempts = 5; // (Number) number of reconnection attempts before giving up (Infinity),
   this.reconnectionDelay = 3000;// (Number) how long to initially wait before attempting a new (1000) 
   this.reconnectionAttemptsDone = 0;
+  this.timeoutOpeningConnectionInSeconds = 10; 
+  this.secondsTriedOpeningConnection = 0; 
 
   /*Event callbacks*/
   this.doWhenOpen;
@@ -55,11 +57,9 @@ function SolvesWebsocket() {
   this.getConnection = async function(name, params, isRestrito){    
     var path = this.getPathByParams(name, params);
     return this.getConexao(name, path, isRestrito);
-    //return this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
   };
   this.getConfigWebsocketRoute = function(name){
     var route = null;
-    //name = name.split('?')[0];
     for(var i in $.SolvesWebsocket.webSocketRoutes){
       var r = $.SolvesWebsocket.webSocketRoutes[i];
       if(typeof r!="function" && $.Solves.isNotEmpty(r.name) && r.name==name){
@@ -81,18 +81,24 @@ function SolvesWebsocket() {
     return await this.criarConexao(name, path);
   };
   this.getSolvesWebsocketConection = async function(name, path, doWhenOpen, doWhenClose, doWhenReceiveMessage, doWhenError){
+        console.log('getSolvesWebsocketConection');   
     var conn = this.webSocketRoutesConnections[path];
+    if(conn!=null){
+      conn = conn.getConexao();
+    }
+    this.secondsTriedOpeningConnection++;
     if(conn==null){
+      console.log('abrindo nova wsConn');
       this.doWhenOpen = doWhenOpen;
       this.doWhenClose = doWhenClose;
       this.doWhenReceiveMessage = doWhenReceiveMessage;
       this.doWhenError = doWhenError;
       conn = await this.doNewConexao(name, path);
-    }else if(conn!=null && conn.isClosed()){
-      console.log(conn.IS_SOCKET_FAIL_EXCEPTION);
-      conn = this.restartConnection();
+    }else if(conn!=null && conn.readyState==3){
       console.log(conn);
+      conn = await this.restartConnection(name, path);
     }
+    console.log(conn);
     return conn;
   };
   this.criarConexao = async function(name, path){
@@ -107,14 +113,10 @@ function SolvesWebsocket() {
     let conn = await this.criarConexao(name, path);
     return (conn!==undefined && conn!=null ? conn.getConexao() : null); 
   };  
-  this.restartConnection = async function(name, params){    
-    var path = this.getPathByParams(name, params);
-    var conn = this.getSolvesWebsocketConection(name, path,this.doWhenOpen,this.doWhenClose,this.doWhenReceiveMessage,this.doWhenError);
-    if(conn!=undefined && conn!=null && conn.isClosed()){
-        await conn.restart();
-    }else{
-      return conn;
-    }
+  this.restartConnection = async function(name, path){ 
+    console.log('restartConnection');      
+    conn = await this.doNewConexao(name, path);
+    return conn;
   };  
   this.closeConnection = function(name, params, isRestrito){     
     var path = this.getPathByParams(name, params);
@@ -221,12 +223,12 @@ function SolvesWebsocketConnection(name, path, webSocketUrlWithPath, debug, doWh
     this.conn = null;
   };
   this.restart = async function(){
-    // console.log('this.restart');
+    console.log('this.restart');
     this.close();
     return await this.open();
   };
   this.isClosed = function(){
-    return (!this.IS_SOCKET_ABERTO && (this.conn==null || (this.STATUS_CLOSED==this.conn.readyState)));
+    return (!this.IS_SOCKET_ABRINDO && !this.IS_SOCKET_ABERTO && (this.conn==null || this.STATUS_CLOSED==this.conn.readyState));
   };
   this.isClosing = function(){
     return (this.conn!=null && this.STATUS_CLOSING==this.conn.readyState);
