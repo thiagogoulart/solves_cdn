@@ -39,7 +39,7 @@ function SolvesVideo() {
   /* PADRÃO DE NOMES DE PARAMETROS  */
   this.PARAM_NAME_VIDEOS = 'videos';
   /* Texts */
-  this.txt_nomore_videos = '<h2>Aguarde novos vídeos!</h2>Parece que todos os vídeos foram assistidos conforme a quantidade de pontos.';
+  this.txt_nomore_videos = '<h2>Aguarde novos vídeos!</h2>Parece que todos os vídeos foram assistidos.';
 
 
   this.init = function(){
