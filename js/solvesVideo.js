@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 5;
-  this.version = '1.4';
+  this.versionId = 6;
+  this.version = '1.5';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -255,14 +255,17 @@ this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
   }
   this.videoDone = false;
   if(this.youtubePlayer==undefined || this.youtubePlayer==null){
-    var w = 320;
-    if(window.innerWidth!==undefined &&  window.innerWidth!=null){
+    let w = 320;
+    let parent_w = $('#'+idContainerVideo).width();
+    if(parent_w!==undefined && parent_w!=null){
+      w = parent_w;
+    }else if(window.innerWidth!==undefined &&  window.innerWidth!=null){
        w = window.innerWidth;
        if(w>992){w=w-418}else{w=w-40}
         if(w>711){w=711;}
     }
-    var h = w * 56.25 /100;
-    var _self = this;
+    let h = w * 56.25 /100;
+    let _self = this;
 
    // YTConfig['host'] = 'https://www.youtube.com'; //$.Solves.siteUrl;
     this.youtubePlayer = new YT.Player(idContainerVideo, {
