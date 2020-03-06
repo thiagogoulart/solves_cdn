@@ -4,8 +4,8 @@
 *last version of 06/03/2020
 **/
 function Solves() {
-  this.versionId = 10;
-  this.version = '1.9';
+  this.versionId = 11;
+  this.version = '1.10';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
@@ -72,7 +72,7 @@ function Solves() {
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
       && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
       this.fireBaseConfig = config;
-      if (this.isNotEmpty(firebase) && typeof firebase.apps!=='undefined' && !firebase.apps.length) {
+      if (typeof firebase!= 'undefined' && !firebase.apps.length) {
         // Initialize Firebase      
         this.fireBaseInitialized = true;
         this.fireBaseApp = firebase.initializeApp(this.fireBaseConfig);
