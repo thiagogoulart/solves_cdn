@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 7;
-  this.version = '1.6';
+  this.versionId = 8;
+  this.version = '1.7';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -302,7 +302,7 @@ this.onPlayerStateChange = function(event, _self) {
      if(this.secondsToWatch==0){
       this.restartSecondsToWatch();
      }
-  }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.UNSTARTED && (this.getPlayerDuration()==0 || this.youtubePlayer.getMediaReferenceTime()==0)){
+  }else if(this.youtubePlayer.getPlayerState()==YT.PlayerState.UNSTARTED && (this.getPlayerDuration()==0)){
     //console.log('noPlayerDuration');
      this.videoPause = false;
      this.secondsToWatch = 0;
