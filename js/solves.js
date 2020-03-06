@@ -1,11 +1,11 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
 * 11/04/2019.)
-*last version of 25/11/2019
+*last version of 06/03/2020
 **/
 function Solves() {
-  this.versionId = 8;
-  this.version = '1.7';
+  this.versionId = 9;
+  this.version = '1.87';
   this.debug = false;
   this.siteUrl = 'https://...';
   this.siteTitulo = 'Solves Site Name';
@@ -72,7 +72,7 @@ function Solves() {
     if(config!==undefined && this.isNotEmpty(config.apiKey) && this.isNotEmpty(config.authDomain) && this.isNotEmpty(config.projectId) 
       && this.isNotEmpty(config.messagingSenderId) && this.isNotEmpty(config.databaseURL) && this.isNotEmpty(config.storageBucket)){
       this.fireBaseConfig = config;
-      if (!firebase || !firebase.apps.length) {
+      if (firebase!==undefined && firebase.apps!==undefined && !firebase.apps.length) {
         // Initialize Firebase      
         this.fireBaseInitialized = true;
         this.fireBaseApp = firebase.initializeApp(this.fireBaseConfig);
