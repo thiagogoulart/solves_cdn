@@ -4,8 +4,8 @@
 **/
 function SolvesStorage() {
   this.solvesPluginName = 'SolvesStorage';
-  this.versionId = 2;
-  this.version = '1.1';
+  this.versionId = 3;
+  this.version = '1.2';
   this.debug = false;
   /*DEFAULT KEYS*/
   this.STORAGE_KEY_PERFIL = $.Solves.siteShortName+'_'+$.Solves.PARAM_NAME_PERFIL;
@@ -45,65 +45,65 @@ function SolvesStorage() {
     this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_USER);
     this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN);
     this.setEmptyCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT);
-  }
+  };
   this.clearGeoData = function(){
     this.clearCache(this.STORAGE_KEY_ADDRESS_DATA);
     this.clearCache(this.STORAGE_KEY_GEO_DATA);
-  }
+  };
   this.getStorageAuthPerfil = function(){
     return this.getCache(this.STORAGE_KEY_PERFIL, true);
-  }
+  };
   this.setStorageAuthPerfil = function(p){
     return this.setCache(this.STORAGE_KEY_PERFIL, p, true);
-  }
+  };
   this.getStorageAuthUsuario = function(){
     return this.getCache(this.STORAGE_KEY_USUARIO, true);
-  }
+  };
   this.setStorageAuthUsuario = function(p){
     return this.setCache(this.STORAGE_KEY_USUARIO, p, true);
-  }
+  };
   this.getStorageAuthUserData = function(){
     return this.getCache(this.STORAGE_KEY_USERDATA, true);
-  }
+  };
   this.setStorageAuthUserData = function(p){
     return this.setCache(this.STORAGE_KEY_USERDATA, p, true);
-  }
+  };
   this.getStorageFireBaseAuthUser = function(){
     return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_USER, true);
-  }
+  };
   this.setStorageFireBaseAuthUser = function(p){
     return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_USER, p, true);
-  }
+  };
   this.getStorageFireBaseAuthToken = function(){
     return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN, true);
-  }
+  };
   this.setStorageFireBaseAuthToken = function(p){
     return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_TOKEN, p, true);
-  }
+  };
   this.getStorageFireBaseAuthResult = function(){
     return this.getCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT, true);
-  }
+  };
   this.setStorageFireBaseAuthResult = function(p){
     return this.setCache(this.STORAGE_KEY_FIREBASE_AUTH_RESULT, p, true);
-  }
+  };
   this.getStorageAuthToken = function(){
     return this.getCache(this.STORAGE_KEY_TOKEN, false);
-  }
+  };
   this.setStorageAuthToken = function(p){
     return this.setCache(this.STORAGE_KEY_TOKEN, p, false);
-  }
+  };
   this.getStorageAddressData = function(){
-    return this.getCache(this.STORAGE_KEY_ADDRESS_DATA);
-  }
+    return this.getCache(this.STORAGE_KEY_ADDRESS_DATA, true);
+  };
   this.setStorageAddressData = function(json){
     return this.setCache(this.STORAGE_KEY_ADDRESS_DATA, json, true);
-  }
+  };
   this.getStorageGeoData = function(){
-    return this.getCache(this.STORAGE_KEY_GEO_DATA);
-  }
+    return this.getCache(this.STORAGE_KEY_GEO_DATA, true);
+  };
   this.setStorageGeoData = function(json){
-    return this.setCache(this.STORAGE_KEY_GEO_DATA, p, true);
-  }
+    return this.setCache(this.STORAGE_KEY_GEO_DATA, json, true);
+  };
   this.setCookieData = function(cookieName,cookieValue,isJson){
     var daysToExpire = 2;
     var date = new Date();
@@ -111,7 +111,7 @@ function SolvesStorage() {
     if($.Solves.isTrue(isJson) && cookieValue!==undefined && cookieValue!=null){cookieValue = $.Solves.escapeTextField(JSON.stringify(cookieValue));}
     var val = cookieName + "=" + cookieValue + "; expires=" + date.toGMTString()+"; path=/";
     document.cookie = val;
-  }
+  };
   this.getCookieData = function(cookieName,isJson) {
     var result;
     var name = cookieName + "=";
@@ -127,10 +127,10 @@ function SolvesStorage() {
       return ($.Solves.isTrue(isJson) ? jQuery.parseJSON(unescape(result)) : result);
     }
     return null;
-  }
+  };
   this.decodeExistingCookies = function(){
     //TODO
-  }
+  };
   this.decodeExistingStorages = function(){
     var pluginGeo = $.Solves.getSolvesPlugin('SolvesGeo');
     if(pluginGeo!=null){
@@ -139,23 +139,23 @@ function SolvesStorage() {
     }else{
       console.log(this.solvesPluginName+' não encontrou SolvesGeo');
     }
-  }
+  };
   this.getCache = function(key,isJson){
     result = window.localStorage[key];
     if(result!=null){
       return ($.Solves.isTrue(isJson) ? jQuery.parseJSON(unescape(result)) : result);
     }
     return null;
-  }
+  };
   this.setCache = function(key, value, isJson){
     if(this.debug){console.log('SolvesStorage. setCache['+key+'] actualValue['+window.localStorage[key]+'] newValue['+value+']');}
     if($.Solves.isTrue(isJson) && value!==undefined && value!=null){value = $.Solves.escapeTextField(JSON.stringify(value));}
     window.localStorage[key] = value;
-  }
+  };
   this.clearCache = function(key){
     if(this.debug){console.log('SolvesStorage. clearCache['+key+'] actualValue['+window.localStorage[key]+']');}
     window.localStorage[key] = null;
-  }
+  };
   this.setEmptyCache = function(key){
     this.clearCache(key);
   }
