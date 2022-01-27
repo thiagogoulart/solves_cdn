@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 10;
-  this.version = '1.9';
+  this.versionId = 11;
+  this.version = '1.10';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
