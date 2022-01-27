@@ -1,11 +1,13 @@
 /**
 @Author Thiago Gonçalves da Silva Goulart (SOLVES SOlUÇÕES EM SOFTWARE)
-*Criado em 11/04/2019. Última alteração em 15/07/2019.
+*Criado em 11/04/2019. 
+* alteração em 15/07/2019. 
+*  Última alteração em: 14/07/2021
 **/
 function SolvesAuth() {
   this.solvesPluginName = 'SolvesAuth';
-  this.versionId = 4;
-  this.version = '1.3';
+  this.versionId = 5;
+  this.version = '1.4';
   this.debug = false;
   this.urlLogadoSucesso = null;
   this.urlTermosUso = null;
@@ -105,7 +107,7 @@ function SolvesAuth() {
     return (this.fireBaseAuthUsedTypes.indexOf(this.fireBaseAuthTypes[this.fireBaseAuthTypes.indexOf(type)])>=0);
   }
   this.initFireBaseConfig = function(){    
-    if(firebase.auth!==undefined){
+    if(firebase!==undefined && firebase.auth!==undefined){
       var all = this.isFireBaseAuthType('all');
       if(all || this.isFireBaseAuthType('google')){
         this.fireBaseSignInOptions.push({provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID, scopes: [],clientId: this.firebaseGoogleAuthClientId, authMethod: 'https://accounts.google.com',customParameters: {prompt: 'select_account'}}); 
@@ -129,7 +131,6 @@ function SolvesAuth() {
       if(this.isFireBaseAuthType('anonymous')){
         this.fireBaseSignInOptions.push(firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID);
       }
-
       firebase.auth().onAuthStateChanged(function(user) {
           if (user) {
             this.fireBaseAuthUser = user;
@@ -188,13 +189,14 @@ function SolvesAuth() {
     }
   };
   this.logoff = function(){
-    firebase.auth().signOut().then(function() {
-        $.Solves.logoff();
-        $.Solves.atualizaPerfilLogado(null);
-    }).catch(function(error) {
-      console.log(error);
-    });
-  
+    if(firebase!==undefined && firebase.auth!==undefined){
+      firebase.auth().signOut().then(function() {
+          $.Solves.logoff();
+          $.Solves.atualizaPerfilLogado(null);
+      }).catch(function(error) {
+        console.log(error);
+      });
+    }
     $.Solves.logoff();
     $.Solves.atualizaPerfilLogado(null);
     return true;

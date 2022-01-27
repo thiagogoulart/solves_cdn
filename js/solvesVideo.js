@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 8;
-  this.version = '1.7';
+  this.versionId = 9;
+  this.version = '1.8';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -274,7 +274,8 @@ this.onYouTubeIframeAPIReady = function(idContainerVideo, videoYoutubeId) {
       videoId: videoYoutubeId,
       events: {
         'onReady': function(event){_self.onPlayerReady(event, this)},
-        'onStateChange': function(event){_self.onPlayerStateChange(event, this)}
+        'onStateChange': function(event){_self.onPlayerStateChange(event, this)},
+        'onError': function(event){_self.onPlayerError(event, this)}
       }
     });
   }else{
@@ -292,6 +293,10 @@ this.startContadorTempoMinimoVideo = function(){
     this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId, this.funcNext_string);
   }
 }
+this.onPlayerError = function(event, _self) {
+  console.log('onPlayerError');
+  console.log(event);
+};
 this.onPlayerStateChange = function(event, _self) {
   if(this.youtubePlayer.getPlayerState()==YT.PlayerState.ENDED){
     if(this.surfMode){this.watchNextVideo();}
