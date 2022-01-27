@@ -4,8 +4,8 @@
 **/
 function SolvesVideo() {
   this.solvesPluginName = 'SolvesVideo';
-  this.versionId = 9;
-  this.version = '1.8';
+  this.versionId = 10;
+  this.version = '1.9';
 
   this.urlPublicVideos = null;
   this.urlVideos = null;
@@ -21,6 +21,7 @@ function SolvesVideo() {
   this.timeoutContagemWatch = null;
   /*Functions Callbacks*/
   this.doAjaxVideoFindToWatch = function(){};
+  this.doWhenPlayerError = function(){};
   /*Operations that must be logged in*/
   this.loggedInToWatchNextVideo = true;
   /*Call next video if video end*/
@@ -292,10 +293,13 @@ this.startContadorTempoMinimoVideo = function(){
     this.restartSecondsToWatch();
     this.contagem_tempo(this.containerWatchCounterNumberElmId, this.containerWatchCounterSecsElmId, this.containerWatchNextElmId, this.containerWatchCounterElmId, this.funcNext_string);
   }
-}
+};
 this.onPlayerError = function(event, _self) {
   console.log('onPlayerError');
   console.log(event);
+ this.videoPause = false;
+ this.secondsToWatch = 0;
+ this.doWhenPlayerError();
 };
 this.onPlayerStateChange = function(event, _self) {
   if(this.youtubePlayer.getPlayerState()==YT.PlayerState.ENDED){
